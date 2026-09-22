@@ -23,24 +23,57 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
+// O ASP.NET Core Identity costuma emitir claims com nomes "longos"
+// (URIs) em vez de "name"/"role" simples. Checamos os dois formatos.
+const CLAIM_NAME = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'
+const CLAIM_EMAIL = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'
+const CLAIM_ROLE = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
+const CLAIM_NAMEID = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'
+
 /**
  * Decodifica a "payload" de um JWT sem validar a assinatura.
  * Validar a assinatura é responsabilidade do backend; no frontend só
  * precisamos ler os dados (claims) para saber quem é o usuário e
  * quando o token expira.
+ *
+ * Importante: usamos TextDecoder (UTF-8) em vez de atob() puro, porque
+ * atob() sozinho corrompe caracteres acentuados (ç, ã, é...) presentes
+ * em nomes/e-mails dentro do token, fazendo o JSON.parse falhar.
  */
 function decodeToken(token: string): DecodedToken | null {
   try {
-    const payloadBase64 = token.split('.')[1]
-    const json = JSON.parse(atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/')))
-    return json as DecodedToken
+    const payloadBase64Url = token.split('.')[1]
+    const base64 = payloadBase64Url.replace(/-/g, '+').replace(/_/g, '/')
+    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=')
+    const binary = atob(padded)
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0))
+    const json = new TextDecoder('utf-8').decode(bytes)
+    return JSON.parse(json) as DecodedToken
   } catch {
     return null
   }
 }
 
+function extractUser(decoded: DecodedToken | null): AuthUser {
+  if (!decoded) return {}
+  return {
+    id: (decoded.sub ?? decoded[CLAIM_NAMEID]) as string | undefined,
+    name: (decoded.name ?? decoded[CLAIM_NAME]) as string | undefined,
+    email: (decoded.email ?? decoded[CLAIM_EMAIL]) as string | undefined,
+    role: (decoded.role ?? decoded[CLAIM_ROLE]) as number | undefined,
+  }
+}
+
+/**
+ * Só consideramos o token expirado quando conseguimos decodificá-lo E ele
+ * tem um campo "exp" no passado. Se não conseguirmos decodificar (token
+ * num formato que não previmos) ou não houver "exp", confiamos no token:
+ * ele acabou de ser emitido pelo próprio backend, e qualquer problema real
+ * de validade será pego pela API na primeira chamada (respondendo 401,
+ * que o interceptor do Axios já trata deslogando o usuário).
+ */
 function isTokenExpired(decoded: DecodedToken | null): boolean {
-  if (!decoded?.exp) return true
+  if (!decoded?.exp) return false
   const nowInSeconds = Date.now() / 1000
   return decoded.exp < nowInSeconds
 }
@@ -53,23 +86,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // se o usuário está autenticado ou não.
   const [isLoading, setIsLoading] = useState(true)
 
-  const applyToken = useCallback((newToken: string) => {
-    const decoded = decodeToken(newToken)
-    if (!decoded || isTokenExpired(decoded)) {
-      localStorage.removeItem(TOKEN_KEY)
-      setToken(null)
-      setUser(null)
-      return
-    }
-
+  // Salva a sessão sem checar expiração — usado logo após um login bem
+  // sucedido, quando o token acabou de ser emitido pelo backend. Checar
+  // "isTokenExpired" aqui seria redundante e arriscado: se o relógio do
+  // computador do usuário estiver dessincronizado, um token válido por 1h
+  // poderia parecer "expirado" na hora, derrubando o login sem motivo.
+  const startSession = useCallback((newToken: string) => {
     localStorage.setItem(TOKEN_KEY, newToken)
     setToken(newToken)
-    setUser({
-      id: decoded.sub,
-      name: decoded.name,
-      email: decoded.email,
-      role: decoded.role,
-    })
+    setUser(extractUser(decodeToken(newToken)))
   }, [])
 
   const logout = useCallback(() => {
@@ -81,19 +106,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(
     async (payload: LoginPayload) => {
       const { token: newToken } = await authService.login(payload)
-      applyToken(newToken)
+      startSession(newToken)
     },
-    [applyToken]
+    [startSession]
   )
 
   // Ao montar o app: restaura a sessão a partir do localStorage, se existir.
+  // Aqui SIM faz sentido checar expiração — é um token que pode ter sido
+  // salvo há horas ou dias, então "isTokenExpired" evita reaproveitar um
+  // token realmente vencido.
   useEffect(() => {
     const savedToken = localStorage.getItem(TOKEN_KEY)
     if (savedToken) {
-      applyToken(savedToken)
+      const decoded = decodeToken(savedToken)
+      if (isTokenExpired(decoded)) {
+        localStorage.removeItem(TOKEN_KEY)
+      } else {
+        setToken(savedToken)
+        setUser(extractUser(decoded))
+      }
     }
     setIsLoading(false)
-  }, [applyToken])
+  }, [])
 
   // Escuta o evento disparado pelo interceptor do Axios (api.ts) quando
   // a API responde 401, e desloga o usuário automaticamente.
