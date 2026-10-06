@@ -1,0 +1,17 @@
+.schools-page { max-width: 960px; margin: 0 auto; }
+.schools-page__header h1 { font-family: var(--font-display); font-size: 2rem; margin: 0 0 0.35rem; }
+.schools-page__header p { margin: 0 0 2rem; color: #52594c; }
+.schools-page__grid { display: grid; gap: 2rem; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 780px) { .schools-page__grid { grid-template-columns: 22rem 1fr; } }
+.schools-form, .schools-list { background: var(--color-white); border: 1px solid var(--color-parchment-dark); border-radius: 10px; padding: 1.5rem; }
+.schools-form h2, .schools-list h2 { font-family: var(--font-display); font-size: 1.2rem; margin: 0 0 1.25rem; }
+.schools-list__hint { color: #6b715f; font-size: 0.95rem; }
+.schools-list__items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.9rem; }
+.schools-list__items li { display: flex; flex-direction: column; gap: 0.15rem; padding: 0.85rem 0.9rem; border: 1px solid var(--color-parchment-dark); border-radius: 8px; }
+.schools-list__items li strong { font-size: 0.98rem; color: var(--color-ink); }
+.schools-list__items li span { font-size: 0.88rem; color: #6b715f; }
+.shifts-options { display: flex; gap: 1rem; flex-wrap: wrap; }
+.shifts-options__item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; font-weight: 400; }
+.link-btn { background: none; border: none; padding: 0; font-size: 0.88rem; font-weight: 600; color: var(--color-forest); cursor: pointer; }
+.link-btn:hover { text-decoration: underline; }
+.link-btn--danger { color: var(--color-brick); }

@@ -34,8 +34,8 @@
   background:
     repeating-linear-gradient(
       135deg,
-      rgba(227, 160, 8, 0.08) 0px,
-      rgba(227, 160, 8, 0.08) 1px,
+      rgba(234, 88, 12, 0.08) 0px,
+      rgba(234, 88, 12, 0.08) 1px,
       transparent 1px,
       transparent 34px
     );
@@ -45,14 +45,14 @@
 .auth-screen__mark {
   font-family: var(--font-display);
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.01em;
   z-index: 1;
 }
 
 .auth-screen__headline {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 800;
   font-size: clamp(2.25rem, 4vw, 3.25rem);
   line-height: 1.08;
   max-width: 15ch;
@@ -64,7 +64,7 @@
   font-size: 1.0625rem;
   line-height: 1.6;
   max-width: 38ch;
-  color: rgba(255, 253, 248, 0.78);
+  color: rgba(255, 255, 255, 0.82);
   z-index: 1;
 }
 
@@ -90,14 +90,14 @@
 .auth-form__title {
   font-family: var(--font-display);
   font-size: 2rem;
-  font-weight: 600;
+  font-weight: 800;
   margin: 0 0 0.5rem;
   color: var(--color-ink);
 }
 
 .auth-form__hint {
   margin: 0 0 2rem;
-  color: #52594c;
+  color: var(--color-gray-500);
   line-height: 1.5;
 }
 
@@ -106,84 +106,6 @@
   font-weight: 600;
 }
 
-.field {
-  margin-bottom: 1.25rem;
-}
-
-.field label {
-  display: block;
-  font-size: 0.9rem;
-  font-weight: 500;
-  margin-bottom: 0.4rem;
-  color: var(--color-ink);
-}
-
-.field input,
-.field select {
-  width: 100%;
-  padding: 0.7rem 0.85rem;
-  border: 1.5px solid var(--color-parchment-dark);
-  border-radius: 6px;
-  background: var(--color-white);
-  font-size: 1rem;
-  color: var(--color-ink);
-  transition: border-color 0.15s ease;
-}
-
-.field input:focus,
-.field select:focus {
-  border-color: var(--color-forest);
-}
-
-.field input[aria-invalid='true'],
-.field select[aria-invalid='true'] {
-  border-color: var(--color-brick);
-}
-
-.field__error {
-  margin: 0.35rem 0 0;
-  font-size: 0.85rem;
-  color: var(--color-brick);
-}
-
-.field-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.form-alert {
-  background: rgba(178, 58, 46, 0.08);
-  border: 1px solid rgba(178, 58, 46, 0.3);
-  color: var(--color-brick);
-  padding: 0.75rem 1rem;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  margin-bottom: 1.25rem;
-}
-
-.btn-primary {
-  width: 100%;
-  padding: 0.8rem 1rem;
-  background: var(--color-forest);
-  color: var(--color-white);
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s ease, transform 0.05s ease;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: var(--color-forest-light);
-}
-
-.btn-primary:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-.btn-primary:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-}
+/* As classes de formulário (.field, .form-alert, .btn-primary, etc.) são
+   compartilhadas por várias telas (Login, Cadastro, Escolas...) e por isso
+   agora vivem em src/index.css (carregado globalmente), não aqui. */

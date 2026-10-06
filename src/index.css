@@ -1,16 +1,28 @@
 :root {
-  --color-ink: #20261d;
-  --color-forest: #1f2e1c;
-  --color-forest-light: #2c3e26;
-  --color-parchment: #eef0e4;
-  --color-parchment-dark: #e2e4d4;
-  --color-saffron: #e3a008;
-  --color-saffron-dark: #b97e05;
-  --color-brick: #b23a2e;
-  --color-white: #fffdf8;
+  /* Paleta extraída do protótipo cantina-digital-app.html */
+  --color-ink: #111827;
+  --color-forest: #16a34a;
+  --color-forest-light: #22c55e;
+  --color-forest-bg: #f0fdf4;
+  --color-parchment: #f9fafb;
+  --color-parchment-dark: #e5e7eb;
+  --color-saffron: #ea580c;
+  --color-saffron-dark: #c2410c;
+  --color-saffron-bg: #fff7ed;
+  --color-brick: #dc2626;
+  --color-brick-bg: #fef2f2;
+  --color-white: #ffffff;
+  --color-gray-100: #f3f4f6;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
 
-  --font-display: 'Fraunces', Georgia, serif;
-  --font-body: 'Work Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.06);
 
   color-scheme: light;
 }
@@ -53,6 +65,163 @@ a:focus-visible {
   height: 100vh;
   font-family: var(--font-body);
   color: var(--color-forest);
+}
+
+/* Classes de formulário compartilhadas entre Login, Cadastro, Escolas e
+   qualquer tela nova que precise de um campo/botão/alerta padrão. */
+.field {
+  margin-bottom: 1.25rem;
+}
+
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--color-gray-600);
+}
+
+.field input,
+.field select {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1.5px solid var(--color-parchment-dark);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  font-size: 15px;
+  color: var(--color-ink);
+  transition: border-color 0.2s ease;
+}
+
+.field input::placeholder {
+  color: var(--color-gray-400);
+}
+
+.field input:focus,
+.field select:focus {
+  border-color: var(--color-forest);
+}
+
+.field input[aria-invalid='true'],
+.field select[aria-invalid='true'] {
+  border-color: var(--color-brick);
+}
+
+.field__error {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  color: var(--color-brick);
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-alert {
+  background: var(--color-brick-bg);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  color: var(--color-brick);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 16px;
+  background: var(--color-forest);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--color-forest-light);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.btn-primary:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  width: 100%;
+  padding: 16px;
+  background: var(--color-gray-100);
+  color: var(--color-gray-600);
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--color-parchment-dark);
+}
+
+.btn-danger {
+  width: 100%;
+  padding: 16px;
+  background: var(--color-brick-bg);
+  color: var(--color-brick);
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Card padrão (usado em Escolas e em qualquer tela nova de listagem/formulário) */
+.card {
+  background: var(--color-white);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-parchment-dark);
+  box-shadow: var(--shadow);
+  padding: 1rem;
+}
+
+/* Chip de status (ex: pendente/em preparo/pronto em pedidos futuros) */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.chip-green {
+  background: var(--color-forest-bg);
+  color: var(--color-forest);
+}
+
+.chip-orange {
+  background: var(--color-saffron-bg);
+  color: var(--color-saffron);
+}
+
+.chip-red {
+  background: var(--color-brick-bg);
+  color: var(--color-brick);
+}
+
+.chip-gray {
+  background: var(--color-gray-100);
+  color: var(--color-gray-600);
 }
 
 @media (prefers-reduced-motion: reduce) {

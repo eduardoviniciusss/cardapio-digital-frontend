@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { authService } from '@/services/authService'
-import type { AuthUser, DecodedToken, LoginPayload } from '@/types/auth'
+import { normalizeRole, type AuthUser, type DecodedToken, type LoginPayload } from '@/types/auth'
 
 const TOKEN_KEY = 'cardapio:token'
 
@@ -60,7 +60,7 @@ function extractUser(decoded: DecodedToken | null): AuthUser {
     id: (decoded.sub ?? decoded[CLAIM_NAMEID]) as string | undefined,
     name: (decoded.name ?? decoded[CLAIM_NAME]) as string | undefined,
     email: (decoded.email ?? decoded[CLAIM_EMAIL]) as string | undefined,
-    role: (decoded.role ?? decoded[CLAIM_ROLE]) as number | undefined,
+    role: normalizeRole(decoded.role ?? decoded[CLAIM_ROLE]),
   }
 }
 
