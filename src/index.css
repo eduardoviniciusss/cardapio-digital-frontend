@@ -1,28 +1,36 @@
+/* ==========================================================================
+   CSS global do Cardápio Digital.
+   Aqui ficam as variáveis de cor/fonte e TODAS as classes compartilhadas
+   entre telas (formulários, painéis, listas, botões, chips, cartões de
+   resumo). Assim nenhuma tela depende do CSS importado por outra.
+   ========================================================================== */
+
 :root {
-  /* Paleta extraída do protótipo cantina-digital-app.html */
-  --color-ink: #111827;
-  --color-forest: #16a34a;
-  --color-forest-light: #22c55e;
-  --color-forest-bg: #f0fdf4;
-  --color-parchment: #f9fafb;
-  --color-parchment-dark: #e5e7eb;
-  --color-saffron: #ea580c;
-  --color-saffron-dark: #c2410c;
-  --color-saffron-bg: #fff7ed;
-  --color-brick: #dc2626;
-  --color-brick-bg: #fef2f2;
-  --color-white: #ffffff;
-  --color-gray-100: #f3f4f6;
-  --color-gray-400: #9ca3af;
-  --color-gray-500: #6b7280;
-  --color-gray-600: #4b5563;
+  /* Paleta */
+  --color-ink: #20261d;
+  --color-forest: #1f2e1c;
+  --color-forest-light: #2c3e26;
+  --color-forest-bg: #e8efe3;
+  --color-parchment: #eef0e4;
+  --color-parchment-dark: #e2e4d4;
+  --color-saffron: #e3a008;
+  --color-saffron-dark: #b97e05;
+  --color-saffron-bg: #fbf1d6;
+  --color-brick: #b23a2e;
+  --color-brick-bg: #f8e6e3;
+  --color-white: #fffdf8;
+  --color-gray-100: #f1f2e8;
+  --color-gray-400: #9a9f8d;
+  --color-gray-500: #6b715f;
+  --color-gray-600: #52594c;
 
-  --font-display: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  /* Fontes: títulos em Fraunces, texto em Work Sans (carregadas no index.html) */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Work Sans', system-ui, -apple-system, sans-serif;
 
-  --radius: 16px;
-  --radius-sm: 10px;
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.06);
+  --radius: 10px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(32, 38, 29, 0.08);
 
   color-scheme: light;
 }
@@ -45,12 +53,24 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+}
+
 button,
 input,
 select {
   font-family: inherit;
 }
 
+a {
+  color: var(--color-forest);
+}
+
+/* Foco visível para quem navega pelo teclado */
 button:focus-visible,
 input:focus-visible,
 select:focus-visible,
@@ -59,38 +79,154 @@ a:focus-visible {
   outline-offset: 2px;
 }
 
+/* ---------- Estados de página ---------- */
+
 .page-loading {
   display: grid;
   place-items: center;
   height: 100vh;
-  font-family: var(--font-body);
   color: var(--color-forest);
 }
 
-/* Classes de formulário compartilhadas entre Login, Cadastro, Escolas e
-   qualquer tela nova que precise de um campo/botão/alerta padrão. */
-.field {
-  margin-bottom: 1.25rem;
+.page-status {
+  color: var(--color-gray-600);
 }
 
-.field label {
+/* ---------- Estrutura de página ---------- */
+
+.schools-page,
+.categories-page,
+.products-page,
+.menus-page,
+.children-page,
+.dashboard-page {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.main-content h1 {
+  margin: 0 0 1.5rem;
+  font-size: 1.9rem;
+}
+
+/* Duas colunas no desktop (formulário à esquerda, lista à direita) */
+.schools-layout,
+.categories-layout,
+.products-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (min-width: 780px) {
+  .schools-layout,
+  .categories-layout,
+  .products-layout {
+    grid-template-columns: 22rem minmax(0, 1fr);
+  }
+}
+
+/* Se o formulário estiver oculto, a lista ocupa a largura toda */
+.schools-layout > .panel:only-child,
+.categories-layout > .panel:only-child,
+.products-layout > .panel:only-child {
+  grid-column: 1 / -1;
+}
+
+/* ---------- Painel (caixa branca) ---------- */
+
+.panel,
+.card,
+.school-card {
+  background: var(--color-white);
+  border: 1px solid var(--color-parchment-dark);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+
+.panel h2,
+.school-card h2 {
+  margin: 0 0 1rem;
+  font-size: 1.15rem;
+}
+
+.school-card p {
+  margin: 0.4rem 0;
+}
+
+/* ---------- Lista de itens ---------- */
+
+.item-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.item-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--color-parchment-dark);
+  border-radius: var(--radius-sm);
+}
+
+.item-detail {
+  display: block;
+  font-size: 0.88rem;
+  color: var(--color-gray-500);
+}
+
+.item-price {
+  color: var(--color-forest);
+  font-weight: 600;
+}
+
+.item-actions {
+  display: flex;
+  gap: 0.9rem;
+  white-space: nowrap;
+}
+
+/* ---------- Campos de formulário ---------- */
+
+.field {
+  margin-bottom: 1.1rem;
+  border: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.field label,
+.field legend {
   display: block;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   margin-bottom: 6px;
+  padding: 0;
   color: var(--color-gray-600);
 }
 
 .field input,
 .field select {
   width: 100%;
-  padding: 14px 16px;
+  padding: 11px 13px;
   border: 1.5px solid var(--color-parchment-dark);
   border-radius: var(--radius-sm);
   background: var(--color-white);
   font-size: 15px;
   color: var(--color-ink);
   transition: border-color 0.2s ease;
+}
+
+.field input[type='checkbox'] {
+  width: auto;
+  padding: 0;
 }
 
 .field input::placeholder {
@@ -107,101 +243,179 @@ a:focus-visible {
   border-color: var(--color-brick);
 }
 
+.field .checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.92rem;
+  font-weight: 400;
+  color: var(--color-ink);
+  margin-bottom: 0.35rem;
+}
+
 .field__error {
   margin: 0.35rem 0 0;
   font-size: 0.85rem;
   color: var(--color-brick);
 }
 
-.field-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+.field__help {
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+  color: var(--color-gray-500);
 }
+
+/* ---------- Avisos ---------- */
 
 .form-alert {
   background: var(--color-brick-bg);
-  border: 1px solid rgba(220, 38, 38, 0.25);
+  border: 1px solid rgba(178, 58, 46, 0.25);
   color: var(--color-brick);
   padding: 0.75rem 1rem;
   border-radius: var(--radius-sm);
   font-size: 0.9rem;
+  margin-bottom: 1.1rem;
+}
+
+.form-success {
+  background: var(--color-forest-bg);
+  border: 1px solid rgba(31, 46, 28, 0.2);
+  color: var(--color-forest);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  margin-bottom: 1.1rem;
+}
+
+.info-alert {
+  background: var(--color-saffron-bg);
+  border: 1px solid rgba(185, 126, 5, 0.35);
+  color: var(--color-ink);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.92rem;
   margin-bottom: 1.25rem;
 }
 
-.btn-primary {
+.form-hint {
+  font-size: 0.9rem;
+  color: var(--color-gray-500);
+  margin: 0 0 1rem;
+}
+
+.menu-empty {
+  font-size: 0.88rem;
+  color: var(--color-gray-500);
+  font-style: italic;
+}
+
+/* ---------- Botões ---------- */
+
+.btn-primary,
+.btn-secondary {
   width: 100%;
-  padding: 16px;
-  background: var(--color-forest);
-  color: var(--color-white);
+  padding: 13px 18px;
   border: none;
   border-radius: var(--radius);
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
   transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.btn-primary {
+  background: var(--color-forest);
+  color: var(--color-white);
 }
 
 .btn-primary:hover:not(:disabled) {
   background: var(--color-forest-light);
 }
 
-.btn-primary:active:not(:disabled) {
-  transform: scale(0.97);
-}
-
-.btn-primary:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-}
-
 .btn-secondary {
-  width: 100%;
-  padding: 16px;
   background: var(--color-gray-100);
   color: var(--color-gray-600);
-  border: none;
-  border-radius: var(--radius);
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.15s ease;
+  border: 1px solid var(--color-parchment-dark);
 }
 
 .btn-secondary:hover:not(:disabled) {
   background: var(--color-parchment-dark);
 }
 
-.btn-danger {
-  width: 100%;
-  padding: 16px;
-  background: var(--color-brick-bg);
-  color: var(--color-brick);
+.btn-primary:active:not(:disabled),
+.btn-secondary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Botão com cara de link (Editar, Excluir, Renomear) */
+.btn-link {
+  background: none;
   border: none;
-  border-radius: var(--radius);
-  font-size: 16px;
-  font-weight: 700;
+  padding: 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-forest);
   cursor: pointer;
 }
 
-/* Card padrão (usado em Escolas e em qualquer tela nova de listagem/formulário) */
-.card {
-  background: var(--color-white);
-  border-radius: var(--radius);
-  border: 1px solid var(--color-parchment-dark);
-  box-shadow: var(--shadow);
-  padding: 1rem;
+.btn-link:hover {
+  text-decoration: underline;
 }
 
-/* Chip de status (ex: pendente/em preparo/pronto em pedidos futuros) */
+/* Marca uma ação destrutiva (usado junto com .btn-link) */
+.btn-danger {
+  color: var(--color-brick);
+}
+
+/* Botões lado a lado no fim de um formulário */
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.form-actions .btn-primary,
+.form-actions .btn-secondary,
+.btn-sm {
+  width: auto;
+}
+
+.btn-sm {
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+}
+
+/* ---------- Chips ---------- */
+
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 5px 12px;
-  border-radius: 100px;
-  font-size: 12px;
-  font-weight: 700;
+  gap: 0.3rem;
+  background: var(--color-parchment);
+  border: 1px solid var(--color-parchment-dark);
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.85rem;
+}
+
+.chip small {
+  color: var(--color-gray-500);
+}
+
+.chip-remove {
+  background: none;
+  border: none;
+  color: var(--color-brick);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 0 0 0.15rem;
+  cursor: pointer;
 }
 
 .chip-green {
@@ -211,7 +425,7 @@ a:focus-visible {
 
 .chip-orange {
   background: var(--color-saffron-bg);
-  color: var(--color-saffron);
+  color: var(--color-saffron-dark);
 }
 
 .chip-red {
@@ -219,9 +433,59 @@ a:focus-visible {
   color: var(--color-brick);
 }
 
-.chip-gray {
-  background: var(--color-gray-100);
+/* ---------- Cartões de resumo (painéis) ---------- */
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.summary-card {
+  display: block;
+  padding: 1.1rem 1.25rem;
+  background: var(--color-white);
+  border: 1px solid var(--color-parchment-dark);
+  border-radius: var(--radius);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+
+.summary-card:hover {
+  border-color: var(--color-saffron-dark);
+}
+
+.summary-card__value {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-forest);
+}
+
+.summary-card__label {
+  font-size: 0.9rem;
   color: var(--color-gray-600);
+}
+
+.dashboard-school {
+  margin: 0 0 1.25rem;
+  color: var(--color-gray-600);
+}
+
+/* ---------- Acessibilidade ---------- */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,45 +1,43 @@
-export type ShiftName = 'Morning' | 'Afternoon' | 'Evening'
+// Tipos do módulo de escolas
 
-export const SHIFT_OPTIONS: { value: ShiftName; label: string }[] = [
-  { value: 'Morning', label: 'Manhã' },
-  { value: 'Afternoon', label: 'Tarde' },
-  { value: 'Evening', label: 'Noite' },
-]
-
-// Corpo retornado por GET /schools, GET /schools/{id} e GET /schools/all
+// Escola completa (retornada pelo endpoint do administrador)
 export interface School {
-  id: number
-  name: string
-  address: string
-  phone: string
-  shifts: ShiftName[]
-  // Só vem preenchido quando a listagem é a do Administrador (/schools/all),
-  // que inclui quem é a Cantina dona de cada escola.
-  canteenUserId?: number
-  canteenName?: string
+  id: number;
+  name: string;
+  address: string;
+  phone: string;
+  shifts: string[];
+  canteenUserId?: number;
+  canteenName?: string;
 }
 
-// Corpo enviado em POST /schools — só o Administrador cria, e precisa
-// informar qual Cantina é a dona.
-export interface CreateSchoolPayload {
-  name: string
-  address: string
-  phone: string
-  shifts: ShiftName[]
-  canteenUserId: number
+// Cantina disponível (sem escola vinculada)
+export interface AvailableCanteen {
+  id: number;
+  name: string;
+  email: string;
 }
 
-// Corpo enviado em PUT/PATCH /schools/{id} — o dono não muda na edição.
-export interface UpdateSchoolPayload {
-  name: string
-  address: string
-  phone: string
-  shifts: ShiftName[]
+// Dados enviados para criar uma escola
+export interface CreateSchoolRequest {
+  name: string;
+  address: string;
+  phone: string;
+  shifts: string[];
+  canteenUserId: number;
 }
 
-// Retorno de GET /schools/available-canteens
-export interface CanteenOption {
-  id: number
-  name: string
-  email: string
+// Dados enviados para atualizar uma escola
+export interface UpdateSchoolRequest {
+  name: string;
+  address: string;
+  phone: string;
+  shifts: string[];
+}
+
+// Opção de escola para o select do responsável
+export interface SchoolOption {
+  id: number;
+  name: string;
+  address: string;
 }

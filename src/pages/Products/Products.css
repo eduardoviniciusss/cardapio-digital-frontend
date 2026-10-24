@@ -1,0 +1,3 @@
+/* Os estilos de Products (página, painel, lista, botões, campos) vivem em
+   src/index.css, porque são compartilhados entre telas.
+   Use este arquivo só para regras que existam APENAS nesta tela. */

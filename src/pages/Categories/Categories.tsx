@@ -1,237 +1,190 @@
-import { AxiosError } from 'axios'
-import { useEffect, useState, type FormEvent } from 'react'
-import { schoolService } from '@/services/schoolService'
-import { categoryService } from '@/services/categoryService'
-import { extractApiErrorMessage } from '@/services/authService'
-import type { Category } from '@/types/category'
-import './Categories.css'
+// Tela de Categorias: CRUD exclusivo da Cantina.
+// O Administrador não acessa esta tela (rota restrita a Canteen).
 
-type ViewState = 'loading' | 'no-school' | 'ready' | 'forbidden' | 'error'
+import { useEffect, useState, type FormEvent } from 'react';
+import {
+  getCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+} from '@/services/categoryService';
+import { getMySchool } from '@/services/schoolService';
+import { extractApiErrorMessage } from '@/services/authService';
+import type { Category } from '@/types/category';
+import './Categories.css';
 
-export function Categories() {
-  const [viewState, setViewState] = useState<ViewState>('loading')
-  const [loadErrorMessage, setLoadErrorMessage] = useState<string | null>(null)
-  const [schoolId, setSchoolId] = useState<number | null>(null)
-  const [categories, setCategories] = useState<Category[]>([])
+type ViewState = 'loading' | 'no-school' | 'forbidden' | 'error' | 'ready';
 
-  const [name, setName] = useState('')
-  const [nameError, setNameError] = useState<string | null>(null)
-  const [apiError, setApiError] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+export default function Categories() {
+  const [view, setView] = useState<ViewState>('loading');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [schoolId, setSchoolId] = useState<number | null>(null);
 
-  const [editingId, setEditingId] = useState<number | null>(null)
-  const [editingName, setEditingName] = useState('')
-  const [rowError, setRowError] = useState<string | null>(null)
-
-  async function load() {
-    setViewState('loading')
-    setLoadErrorMessage(null)
-    try {
-      const school = await schoolService.getMine()
-      if (!school) {
-        setViewState('no-school')
-        return
-      }
-      setSchoolId(school.id)
-
-      const data = await categoryService.list()
-      setCategories(data)
-      setViewState('ready')
-    } catch (error) {
-      if (error instanceof AxiosError && error.response?.status === 403) {
-        setViewState('forbidden')
-      } else if (error instanceof AxiosError && error.response?.status === 404) {
-        setViewState('no-school')
-      } else {
-        setLoadErrorMessage(extractApiErrorMessage(error, 'Não foi possível carregar as categorias.'))
-        setViewState('error')
-      }
-    }
-  }
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [formName, setFormName] = useState('');
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [formError, setFormError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    load()
-  }, [])
+    let active = true;
 
-  async function handleCreate(event: FormEvent) {
-    event.preventDefault()
-    setApiError(null)
+    async function load() {
+      try {
+        // Obtém a escola da Cantina logada
+        let sid: number;
+        try {
+          const school = await getMySchool();
+          sid = school.id;
+        } catch (err: unknown) {
+          if (!active) return;
+          const status = (err as { response?: { status?: number } }).response?.status;
+          if (status === 404) {
+            setView('no-school');
+            return;
+          }
+          if (status === 403) {
+            setView('forbidden');
+            return;
+          }
+          throw err;
+        }
 
-    if (!name.trim()) {
-      setNameError('Informe o nome da categoria.')
-      return
+        const cats = await getCategories();
+        if (!active) return;
+        setSchoolId(sid);
+        setCategories(cats);
+        setView('ready');
+      } catch (err) {
+        if (!active) return;
+        const status = (err as { response?: { status?: number } }).response?.status;
+        if (status === 404) {
+          setView('no-school');
+          return;
+        }
+        setErrorMsg(extractApiErrorMessage(err, 'Erro ao carregar categorias.'));
+        setView('error');
+      }
     }
-    setNameError(null)
+    load();
+    return () => { active = false; };
+  }, []);
 
-    if (!schoolId) return
+  function resetForm() {
+    setFormName('');
+    setEditingId(null);
+    setFormError('');
+  }
 
-    setIsSubmitting(true)
+  function startEdit(cat: Category) {
+    setFormName(cat.name);
+    setEditingId(cat.id);
+    setFormError('');
+  }
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setFormError('');
+
+    if (!formName.trim()) {
+      setFormError('Informe o nome da categoria.');
+      return;
+    }
+
+    if (schoolId === null) {
+      setFormError('Escola não encontrada. Não é possível salvar a categoria.');
+      return;
+    }
+
+    setSubmitting(true);
     try {
-      const created = await categoryService.create({ name: name.trim(), schoolId })
-      setCategories((prev) => [...prev, created])
-      setName('')
-    } catch (error) {
-      setApiError(extractApiErrorMessage(error, 'Não foi possível cadastrar a categoria.'))
+      if (editingId === null) {
+        const created = await createCategory({ name: formName.trim(), schoolId });
+        setCategories(prev => [...prev, created]);
+      } else {
+        await updateCategory(editingId, { name: formName.trim(), schoolId });
+        setCategories(prev =>
+          prev.map(c => (c.id === editingId ? { ...c, name: formName.trim() } : c)),
+        );
+      }
+      resetForm();
+    } catch (err) {
+      setFormError(extractApiErrorMessage(err, 'Erro ao salvar categoria.'));
     } finally {
-      setIsSubmitting(false)
+      setSubmitting(false);
     }
   }
 
-  function startEditing(category: Category) {
-    setEditingId(category.id)
-    setEditingName(category.name)
-    setRowError(null)
-  }
-
-  function cancelEditing() {
-    setEditingId(null)
-    setEditingName('')
-    setRowError(null)
-  }
-
-  async function saveEditing(category: Category) {
-    if (!editingName.trim()) {
-      setRowError('O nome não pode ficar vazio.')
-      return
-    }
-    if (!schoolId) return
-
+  async function handleDelete(id: number) {
+    if (!window.confirm('Tem certeza que deseja excluir esta categoria?')) return;
     try {
-      const updated = await categoryService.update(category.id, {
-        name: editingName.trim(),
-        schoolId,
-      })
-      setCategories((prev) => prev.map((c) => (c.id === category.id ? updated : c)))
-      cancelEditing()
-    } catch (error) {
-      setRowError(extractApiErrorMessage(error, 'Não foi possível salvar a alteração.'))
+      await deleteCategory(id);
+      setCategories(prev => prev.filter(c => c.id !== id));
+      if (editingId === id) resetForm();
+    } catch (err) {
+      setFormError(extractApiErrorMessage(err, 'Erro ao excluir categoria.'));
     }
   }
 
-  async function handleDelete(category: Category) {
-    if (!window.confirm(`Excluir a categoria "${category.name}"? Essa ação não pode ser desfeita.`)) {
-      return
-    }
-    try {
-      await categoryService.remove(category.id)
-      setCategories((prev) => prev.filter((c) => c.id !== category.id))
-    } catch (error) {
-      setApiError(extractApiErrorMessage(error, 'Não foi possível excluir a categoria.'))
-    }
-  }
+  if (view === 'loading') return <p className="page-status">Carregando…</p>;
+  if (view === 'forbidden') return <p className="page-status">Você não tem permissão para acessar esta página.</p>;
+  if (view === 'error') return <p className="page-status" role="alert">{errorMsg}</p>;
 
-  if (viewState === 'loading') {
-    return <p className="schools-list__hint">Carregando…</p>
+  if (view === 'no-school') {
+    return (
+      <div className="categories-page">
+        <h1>Categorias</h1>
+        <p className="page-status">
+          Sua conta ainda não está vinculada a uma escola. Peça a um Administrador para criar a escola e vincular à sua conta.
+        </p>
+      </div>
+    );
   }
 
   return (
     <div className="categories-page">
-      <div className="schools-page__header">
-        <h1>Categorias</h1>
-        <p>Organize os produtos da sua escola em categorias.</p>
-      </div>
+      <h1>Categorias</h1>
 
-      {viewState === 'no-school' && (
-        <div className="form-alert" role="alert">
-          Você precisa cadastrar a escola antes de criar categorias. Acesse "Escolas" no menu para
-          cadastrar.
-        </div>
-      )}
+      <div className="categories-layout">
+        <form className="panel" onSubmit={handleSubmit} noValidate>
+          <h2>{editingId ? 'Editar categoria' : 'Nova categoria'}</h2>
 
-      {viewState === 'forbidden' && (
-        <div className="form-alert" role="alert">
-          Seu papel de usuário não tem permissão para gerenciar categorias (o backend exige o papel
-          "Canteen").
-        </div>
-      )}
+          {formError && <div className="form-alert" role="alert">{formError}</div>}
 
-      {viewState === 'error' && (
-        <div className="form-alert" role="alert">
-          {loadErrorMessage}
-        </div>
-      )}
+          <div className="field">
+            <label htmlFor="cat-name">Nome</label>
+            <input id="cat-name" value={formName} onChange={e => setFormName(e.target.value)} />
+          </div>
 
-      {viewState === 'ready' && (
-        <div className="categories-page__grid">
-          <form className="schools-form" onSubmit={handleCreate} noValidate>
-            <h2>Nova categoria</h2>
-
-            {apiError && (
-              <div className="form-alert" role="alert">
-                {apiError}
-              </div>
-            )}
-
-            <div className="field">
-              <label htmlFor="category-name">Nome</label>
-              <input
-                id="category-name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                aria-invalid={Boolean(nameError)}
-              />
-              {nameError && <p className="field__error">{nameError}</p>}
-            </div>
-
-            <button type="submit" className="btn-primary" disabled={isSubmitting}>
-              {isSubmitting ? 'Salvando…' : 'Cadastrar categoria'}
+          <div className="form-actions">
+            <button type="submit" className="btn-primary" disabled={submitting}>
+              {submitting ? 'Salvando…' : editingId ? 'Salvar alterações' : 'Cadastrar categoria'}
             </button>
-          </form>
-
-          <div className="schools-list">
-            <h2>Categorias cadastradas</h2>
-
-            {categories.length === 0 && (
-              <p className="schools-list__hint">Nenhuma categoria cadastrada ainda.</p>
-            )}
-
-            {categories.length > 0 && (
-              <ul className="categories-list">
-                {categories.map((category) => (
-                  <li key={category.id} className="categories-list__item">
-                    {editingId === category.id ? (
-                      <div className="categories-list__edit-row">
-                        <input
-                          type="text"
-                          value={editingName}
-                          onChange={(e) => setEditingName(e.target.value)}
-                          autoFocus
-                        />
-                        <div className="categories-list__actions">
-                          <button type="button" className="link-btn" onClick={() => saveEditing(category)}>
-                            Salvar
-                          </button>
-                          <button type="button" className="link-btn link-btn--muted" onClick={cancelEditing}>
-                            Cancelar
-                          </button>
-                        </div>
-                        {rowError && <p className="field__error">{rowError}</p>}
-                      </div>
-                    ) : (
-                      <div className="categories-list__view-row">
-                        <span>{category.name}</span>
-                        <div className="categories-list__actions">
-                          <button type="button" className="link-btn" onClick={() => startEditing(category)}>
-                            Editar
-                          </button>
-                          <button
-                            type="button"
-                            className="link-btn link-btn--danger"
-                            onClick={() => handleDelete(category)}
-                          >
-                            Excluir
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </li>
-                ))}
-              </ul>
+            {editingId !== null && (
+              <button type="button" className="btn-secondary" onClick={resetForm}>Cancelar</button>
             )}
           </div>
+        </form>
+
+        <div className="panel">
+          <h2>Categorias cadastradas ({categories.length})</h2>
+          {categories.length === 0 ? (
+            <p>Nenhuma categoria cadastrada.</p>
+          ) : (
+            <ul className="item-list">
+              {categories.map(c => (
+                <li key={c.id} className="item-row">
+                  <span>{c.name}</span>
+                  <div className="item-actions">
+                    <button className="btn-link" onClick={() => startEdit(c)}>Editar</button>
+                    <button className="btn-link btn-danger" onClick={() => handleDelete(c.id)}>Excluir</button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-      )}
+      </div>
     </div>
-  )
+  );
 }

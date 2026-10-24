@@ -12,11 +12,7 @@ interface RoleProtectedRouteProps {
 /**
  * Igual ao ProtectedRoute (exige login), mas também exige que o papel do
  * usuário esteja na lista de papéis permitidos para aquela rota.
- * Ex: <RoleProtectedRoute allowedRoles={[UserRole.Administrator]}>.
- *
- * Reaproveita o ProtectedRoute por fora para não duplicar a lógica de
- * "ainda carregando" / "sem sessão" — aqui só acrescentamos a checagem
- * de papel, que roda depois que já sabemos que o usuário está logado.
+ * Ex.: <RoleProtectedRoute allowedRoles={[UserRole.Canteen]}>.
  */
 export function RoleProtectedRoute({ children, allowedRoles }: RoleProtectedRouteProps) {
   const { user } = useAuth()
@@ -37,13 +33,12 @@ function RoleGate({
 }: {
   children: ReactNode
   allowedRoles: UserRole[]
-  userRole?: number
+  userRole?: string
 }) {
   const isAllowed = userRole !== undefined && allowedRoles.includes(userRole as UserRole)
 
+  // Logado, mas sem permissão para esta área: volta para a home
   if (!isAllowed) {
-    // Usuário logado, mas sem permissão para esta área — volta para a home
-    // em vez de mostrar uma tela quebrada.
     return <Navigate to="/" replace />
   }
 

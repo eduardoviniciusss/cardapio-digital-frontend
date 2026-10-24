@@ -1,0 +1,75 @@
+/* Regras que existem só na tela de Cardápios.
+   Chips, .sr-only, .btn-sm e .menu-empty estão em src/index.css. */
+
+/* Formulário em linha: campo de nome + botões */
+.menus-form {
+  margin-bottom: 1.5rem;
+}
+
+.menus-form-row {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.menus-form-row .field {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+/* Grade de cartões de cardápio */
+.menus-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+.menu-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.menu-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.menu-card-header h3 {
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.menu-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.menu-add-product {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.menu-add-product select {
+  flex: 1;
+  min-width: 0;
+  padding: 0.45rem 0.5rem;
+  border: 1.5px solid var(--color-parchment-dark);
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  background: var(--color-white);
+}
+
+@media (max-width: 768px) {
+  .menus-form-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .menus-grid {
+    grid-template-columns: 1fr;
+  }
+}

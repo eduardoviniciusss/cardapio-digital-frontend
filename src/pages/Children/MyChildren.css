@@ -1,0 +1,87 @@
+/* Regras que existem só na tela "Meus filhos".
+   .form-success, .form-hint, .menu-empty e .item-* estão em src/index.css. */
+
+.parent-form {
+  max-width: 480px;
+}
+
+.children-form {
+  margin-bottom: 1.5rem;
+}
+
+.children-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 1rem;
+}
+
+/* Cartão de cada filho */
+.child-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.85rem;
+  border: 1px solid var(--color-parchment-dark);
+  border-radius: var(--radius-sm);
+}
+
+.child-card > .btn-secondary {
+  width: auto;
+  align-self: flex-start;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+}
+
+.child-info strong {
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+/* Cardápios que aparecem ao clicar em "Ver cardápio" */
+.child-menus {
+  margin-top: 0.25rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-parchment-dark);
+}
+
+.child-menu-card {
+  background: var(--color-parchment);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.child-menu-card h4 {
+  font-size: 0.95rem;
+  margin: 0 0 0.5rem;
+}
+
+.menu-product-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.menu-product-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.menu-product-list small {
+  color: var(--color-gray-500);
+}
+
+.menu-product-list .item-price {
+  margin-left: auto;
+}
+
+@media (max-width: 768px) {
+  .children-form-grid {
+    grid-template-columns: 1fr;
+  }
+}

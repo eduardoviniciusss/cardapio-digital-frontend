@@ -1,99 +1,61 @@
-/**
- * Papéis (roles) de usuário do sistema.
- *
- * O backend recebe "role" como número no cadastro (POST /users).
- * O Swagger do projeto mostra o campo, mas não documenta o significado de
- * cada valor — ajuste os números abaixo caso o backend use uma ordem
- * diferente (confira em /schools, /parents, /children ou peça ao time de
- * backend a listagem oficial do enum).
- */
-export enum UserRole {
-  Administrator = 1,
-  Canteen = 2,
-  Parent = 3,
-}
+// Tipos do módulo de autenticação
 
+/**
+ * Papéis do sistema. No token JWT o papel vem como TEXTO
+ * ("Administrator", "Canteen", "Parent"), por isso usamos strings aqui.
+ */
+export const UserRole = {
+  Administrator: 'Administrator',
+  Canteen: 'Canteen',
+  Parent: 'Parent',
+} as const
+
+export type UserRole = (typeof UserRole)[keyof typeof UserRole]
+
+/** Rótulos em português para exibir cada papel na tela */
 export const roleLabels: Record<UserRole, string> = {
-  [UserRole.Administrator]: 'Administrador',
-  [UserRole.Canteen]: 'Cantina',
-  [UserRole.Parent]: 'Responsável',
+  Administrator: 'Administrador',
+  Canteen: 'Cantina',
+  Parent: 'Responsável',
 }
 
-/**
- * O valor de "role" dentro do JWT pode chegar em formatos diferentes
- * dependendo de como o ASP.NET Core serializa o claim:
- * - número: 1
- * - texto numérico: "1"  <- o mais comum, pois Claim.Value é sempre string
- * - nome do papel: "Administrator"
- *
- * Esta função normaliza qualquer um desses formatos para o enum UserRole,
- * evitando bugs de comparação como "1" === 1 (que é false em JS).
- */
-const ROLE_NAME_MAP: Record<string, UserRole> = {
-  administrator: UserRole.Administrator,
-  admin: UserRole.Administrator,
-  canteen: UserRole.Canteen,
-  parent: UserRole.Parent,
-}
-
-export function normalizeRole(raw: unknown): UserRole | undefined {
-  if (raw === null || raw === undefined) return undefined
-
-  if (typeof raw === 'number') {
-    return raw in roleLabels ? (raw as UserRole) : undefined
-  }
-
-  if (typeof raw === 'string') {
-    const asNumber = Number(raw)
-    if (!Number.isNaN(asNumber) && asNumber in roleLabels) {
-      return asNumber as UserRole
-    }
-    return ROLE_NAME_MAP[raw.toLowerCase()]
-  }
-
-  return undefined
-}
-
-// Corpo enviado em POST /users
-export interface RegisterPayload {
-  name: string
-  email: string
-  password: string
-  role: UserRole
-}
-
-// Resposta de POST /users
-export interface RegisterResponse {
+export interface User {
   id: number
   name: string
   email: string
+  role: string
 }
 
-// Corpo enviado em POST /login
-export interface LoginPayload {
+export interface LoginRequest {
   email: string
   password: string
 }
 
-// Resposta de POST /login
+// O backend devolve { token, user: { id, name, email, role } }
+// user pode não vir em respostas parciais
 export interface LoginResponse {
   token: string
+  user?: {
+    id: number
+    name: string
+    email: string
+    role: string | number
+  }
 }
 
-// Formato decodificado do JWT (ajuste conforme os "claims" reais do token)
-export interface DecodedToken {
-  sub?: string
-  email?: string
-  name?: string
-  role?: number
-  exp: number
-  [key: string]: unknown
+// No cadastro o front envia o papel como NÚMERO: 1 = Administrator, 2 = Canteen, 3 = Parent
+export interface RegisterRequest {
+  name: string
+  email: string
+  password: string
+  role: number
 }
 
-// Usuário autenticado guardado no contexto
-export interface AuthUser {
-  id?: string
-  name?: string
-  email?: string
-  role?: number
+// RegisterResponse removido: o backend responde com texto simples
+
+export interface AuthContextType {
+  user: User | null
+  login: (email: string, password: string) => Promise<void>
+  logout: () => void
+  loading: boolean
 }

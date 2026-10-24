@@ -53,7 +53,7 @@ export function Login() {
 
     setIsSubmitting(true)
     try {
-      await login({ email: email.trim(), password })
+      await login(email.trim(), password)
 
       // Volta o usuário para a página que ele tentou acessar antes do
       // login (guardada pelo ProtectedRoute), ou para a home por padrão.

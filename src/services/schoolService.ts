@@ -1,51 +1,50 @@
-import { AxiosError } from 'axios'
-import api from './api'
-import type { CanteenOption, CreateSchoolPayload, School, UpdateSchoolPayload } from '@/types/school'
+// Serviço de escolas: CRUD completo.
 
-/**
- * Serviço de Escolas.
- *
- * Modelo confirmado com o backend: cada escola pertence a UMA Cantina
- * (School.UserId aponta para o usuário Cantina). O Administrador não é
- * dono de nenhuma escola — ele gerencia todas através de /schools/all.
- */
-export const schoolService = {
-  /** GET /schools — a escola do usuário logado (uso da Cantina). */
-  async getMine(): Promise<School | null> {
-    try {
-      const { data } = await api.get<School>('/schools')
-      return data
-    } catch (error) {
-      if (error instanceof AxiosError && error.response?.status === 404) {
-        return null
-      }
-      throw error
-    }
-  },
+import api from '@/services/api';
+import type {
+  AvailableCanteen,
+  CreateSchoolRequest,
+  School,
+  SchoolOption,
+  UpdateSchoolRequest,
+} from '@/types/school';
 
-  /** GET /schools/all — todas as escolas (uso do Administrador). */
-  async listAll(): Promise<School[]> {
-    const { data } = await api.get<School[]>('/schools/all')
-    return data
-  },
+/** Retorna a escola da Cantina logada (objeto único, não lista) */
+export async function getMySchool(): Promise<School> {
+  const response = await api.get<School>('/schools');
+  return response.data;
+}
 
-  /** GET /schools/available-canteens — Cantinas ainda sem escola vinculada. */
-  async availableCanteens(): Promise<CanteenOption[]> {
-    const { data } = await api.get<CanteenOption[]>('/schools/available-canteens')
-    return data
-  },
+/** Lista todas as escolas (só para Administrador) */
+export async function getAllSchools(): Promise<School[]> {
+  const response = await api.get<School[]>('/schools/all');
+  return response.data;
+}
 
-  async create(payload: CreateSchoolPayload): Promise<School> {
-    const { data } = await api.post<School>('/schools', payload)
-    return data
-  },
+/** Lista Cantinas disponíveis (sem escola vinculada) */
+export async function getAvailableCanteens(): Promise<AvailableCanteen[]> {
+  const response = await api.get<AvailableCanteen[]>('/schools/available-canteens');
+  return response.data;
+}
 
-  async update(id: number, payload: UpdateSchoolPayload): Promise<School> {
-    const { data } = await api.put<School>(`/schools/${id}`, payload)
-    return data
-  },
+/** Cria uma nova escola (só Administrador) */
+export async function createSchool(data: CreateSchoolRequest): Promise<School> {
+  const response = await api.post<School>('/schools', data);
+  return response.data;
+}
 
-  async remove(id: number): Promise<void> {
-    await api.delete(`/schools/${id}`)
-  },
+/** Atualiza uma escola (só Administrador) */
+export async function updateSchool(id: number, data: UpdateSchoolRequest): Promise<void> {
+  await api.put(`/schools/${id}`, data);
+}
+
+/** Exclui uma escola (só Administrador) */
+export async function deleteSchool(id: number): Promise<void> {
+  await api.delete(`/schools/${id}`);
+}
+
+/** Lista opções de escola para o Responsável (GET /schools/options) */
+export async function getSchoolOptions(): Promise<SchoolOption[]> {
+  const response = await api.get<SchoolOption[]>('/schools/options');
+  return response.data;
 }

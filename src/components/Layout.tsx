@@ -1,53 +1,66 @@
+// Layout principal: cabeçalho com menu por papel + área de conteúdo.
+// Recebe a página como "children" (o helper Private, em AppRoutes, faz isso).
+
 import type { ReactNode } from 'react'
-import { NavLink } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
-import { UserRole } from '@/types/auth'
+import { roleLabels, type UserRole } from '@/types/auth'
 import './Layout.css'
 
-interface LayoutProps {
-  children: ReactNode
+/** Links do menu para cada papel */
+const NAV_BY_ROLE: Record<string, { to: string; label: string; end?: boolean }[]> = {
+  Administrator: [
+    { to: '/', label: 'Início', end: true },
+    { to: '/escolas', label: 'Escolas' },
+  ],
+  Canteen: [
+    { to: '/', label: 'Início', end: true },
+    { to: '/escolas', label: 'Minha escola' },
+    { to: '/categorias', label: 'Categorias' },
+    { to: '/produtos', label: 'Produtos' },
+    { to: '/cardapios', label: 'Cardápios' },
+  ],
+  Parent: [
+    { to: '/', label: 'Início', end: true },
+    { to: '/filhos', label: 'Meus filhos' },
+  ],
 }
 
-/**
- * Casca visual comum a todas as páginas depois do login: cabeçalho com o
- * nome do app, navegação (que muda de acordo com o papel do usuário) e
- * botão de sair. As telas (Dashboard, Schools, ...) só cuidam do próprio
- * conteúdo — nunca precisam se preocupar com cabeçalho/navegação.
- */
-export function Layout({ children }: LayoutProps) {
+export default function Layout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth()
-  const canSeeSchools = user?.role === UserRole.Administrator || user?.role === UserRole.Canteen
+
+  const navLinks = user ? (NAV_BY_ROLE[user.role] ?? []) : []
+  const roleLabel = user ? (roleLabels[user.role as UserRole] ?? user.role) : ''
 
   return (
-    <div className="app-layout">
-      <header className="app-header">
-        <span className="app-header__brand">Cardápio Digital</span>
+    <div className="layout">
+      <header className="topbar">
+        <Link to="/" className="topbar-brand">
+          🍽️ Cardápio Digital
+        </Link>
 
-        <nav className="app-header__nav">
-          <NavLink to="/" end className={({ isActive }) => (isActive ? 'is-active' : undefined)}>
-            Início
-          </NavLink>
-          {canSeeSchools && (
-            <NavLink to="/escolas" className={({ isActive }) => (isActive ? 'is-active' : undefined)}>
-              Escolas
+        <nav className="topbar-nav" aria-label="Menu principal">
+          {navLinks.map((link) => (
+            <NavLink key={link.to} to={link.to} end={link.end}>
+              {link.label}
             </NavLink>
-          )}
-          {canSeeSchools && (
-            <NavLink to="/categorias" className={({ isActive }) => (isActive ? 'is-active' : undefined)}>
-              Categorias
-            </NavLink>
-          )}
+          ))}
         </nav>
 
-        <div className="app-header__user">
-          {user?.name && <span className="app-header__username">{user.name}</span>}
-          <button type="button" className="app-header__logout" onClick={logout}>
+        <div className="topbar-user">
+          {user && (
+            <>
+              <span className="topbar-role-badge">{roleLabel}</span>
+              <span className="topbar-username">{user.name}</span>
+            </>
+          )}
+          <button type="button" onClick={logout}>
             Sair
           </button>
         </div>
       </header>
 
-      <main className="app-main">{children}</main>
+      <main className="main-content">{children}</main>
     </div>
   )
 }
