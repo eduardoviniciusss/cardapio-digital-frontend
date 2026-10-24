@@ -4,6 +4,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { AuthContextType, User } from '@/types/auth';
 import * as authService from '@/services/authService';
+import { clearActing } from '@/services/acting';
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -48,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const handler = () => {
       localStorage.removeItem('cardapio:name');
+      clearActing();
       setUser(null);
     };
     window.addEventListener('cardapio:unauthorized', handler);
@@ -57,6 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function login(email: string, password: string) {
     const response = await authService.login({ email, password });
     localStorage.setItem('cardapio:token', response.token);
+    clearActing(); // começa sem escola/responsável escolhido
 
     // Salva o nome do usuário no localStorage (o token não contém essa informação)
     if (response.user?.name) {
@@ -69,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   function logout() {
     localStorage.removeItem('cardapio:token');
     localStorage.removeItem('cardapio:name');
+    clearActing();
     setUser(null);
   }
 

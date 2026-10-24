@@ -5,6 +5,8 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { UserRole } from '@/types/auth';
+import { getActingParent } from '@/services/acting';
 import { getChildren, createChild } from '@/services/childService';
 import { createParent } from '@/services/parentService';
 import { getSchoolOptions } from '@/services/schoolService';
@@ -27,7 +29,10 @@ export default function MyChildren() {
   const [children, setChildren] = useState<Child[]>([]);
 
   // Formulário de cadastro do responsável
-  const [parentName, setParentName] = useState(user?.name ?? '');
+  // Se o Administrador está atuando como um responsável, o nome sugerido é o do responsável
+  const [parentName, setParentName] = useState(
+    (user?.role === UserRole.Administrator ? getActingParent()?.name : user?.name) ?? '',
+  );
   const [parentCpf, setParentCpf] = useState('');
   const [parentPhone, setParentPhone] = useState('');
   const [parentError, setParentError] = useState('');

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { ACTING_HEADER, actingUserIdForPath } from '@/services/acting'
 
 /**
  * Instância central do Axios.
@@ -22,6 +23,14 @@ api.interceptors.request.use((config) => {
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`
   }
+
+  // Administrador "atuando como" uma escola ou um responsável: o backend só
+  // considera este header quando quem chama é Administrador.
+  const actingUserId = actingUserIdForPath(window.location.pathname)
+  if (actingUserId !== null && config.headers) {
+    config.headers.set(ACTING_HEADER, String(actingUserId))
+  }
+
   return config
 })
 

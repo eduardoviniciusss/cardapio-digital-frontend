@@ -13,6 +13,8 @@ import Products from '@/pages/Products/Products'
 import Menus from '@/pages/Menus/Menus'
 import MyChildren from '@/pages/Children/MyChildren'
 import ChildMenuPage from '@/pages/Children/ChildMenuPage'
+import MyOrders from '@/pages/Orders/MyOrders'
+import SchoolOrders from '@/pages/Orders/SchoolOrders'
 import { UserRole } from '@/types/auth'
 
 /**
@@ -58,7 +60,7 @@ export function AppRoutes() {
           <Route
             path="/categorias"
             element={
-              <Private roles={[UserRole.Canteen]}>
+              <Private roles={[UserRole.Administrator, UserRole.Canteen]}>
                 <Categories />
               </Private>
             }
@@ -66,7 +68,7 @@ export function AppRoutes() {
           <Route
             path="/produtos"
             element={
-              <Private roles={[UserRole.Canteen]}>
+              <Private roles={[UserRole.Administrator, UserRole.Canteen]}>
                 <Products />
               </Private>
             }
@@ -74,7 +76,7 @@ export function AppRoutes() {
           <Route
             path="/cardapios"
             element={
-              <Private roles={[UserRole.Canteen]}>
+              <Private roles={[UserRole.Administrator, UserRole.Canteen]}>
                 <Menus />
               </Private>
             }
@@ -82,7 +84,7 @@ export function AppRoutes() {
           <Route
             path="/filhos"
             element={
-              <Private roles={[UserRole.Parent]}>
+              <Private roles={[UserRole.Administrator, UserRole.Parent]}>
                 <MyChildren />
               </Private>
             }
@@ -90,8 +92,25 @@ export function AppRoutes() {
           <Route
             path="/filhos/:childId/cardapio"
             element={
-              <Private roles={[UserRole.Parent]}>
+              <Private roles={[UserRole.Administrator, UserRole.Parent]}>
                 <ChildMenuPage />
+              </Private>
+            }
+          />
+
+          <Route
+            path="/meus-pedidos"
+            element={
+              <Private roles={[UserRole.Administrator, UserRole.Parent]}>
+                <MyOrders />
+              </Private>
+            }
+          />
+          <Route
+            path="/pedidos"
+            element={
+              <Private roles={[UserRole.Administrator, UserRole.Canteen]}>
+                <SchoolOrders />
               </Private>
             }
           />
