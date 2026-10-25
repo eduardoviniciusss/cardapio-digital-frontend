@@ -124,7 +124,11 @@ export default function ChildMenuPage() {
       </p>
 
       {submitError && <div className="form-alert" role="alert">{submitError}</div>}
-      {submitSuccess && <div className="form-success" role="status">{submitSuccess}</div>}
+      {submitSuccess && (
+        <div className="form-success" role="status">
+          {submitSuccess} <Link to="/meus-pedidos">Ver meus pedidos</Link>
+        </div>
+      )}
 
       <div className="panel">
         <div className="field menu-page-date">

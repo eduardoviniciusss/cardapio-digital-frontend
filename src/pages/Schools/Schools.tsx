@@ -42,6 +42,7 @@ export default function Schools() {
   const [formShifts, setFormShifts] = useState<string[]>([]);
   const [formCanteen, setFormCanteen] = useState<number | ''>('');
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingMine, setEditingMine] = useState(false); // Cantina editando a própria escola
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -110,6 +111,56 @@ export default function Schools() {
     setFormShifts(prev =>
       prev.includes(value) ? prev.filter(s => s !== value) : [...prev, value],
     );
+  }
+
+  // --- Cantina: editar a própria escola ---
+  function startEditMine() {
+    if (!mySchool) return;
+    setFormName(mySchool.name);
+    setFormAddress(mySchool.address);
+    setFormPhone(mySchool.phone);
+    setFormShifts([...mySchool.shifts]);
+    setFormError('');
+    setEditingMine(true);
+  }
+
+  function cancelEditMine() {
+    setEditingMine(false);
+    resetForm();
+  }
+
+  async function handleSubmitMine(e: FormEvent) {
+    e.preventDefault();
+    setFormError('');
+    if (!mySchool) return;
+
+    if (!formName.trim() || !formAddress.trim() || !formPhone.trim()) {
+      setFormError('Preencha todos os campos.');
+      return;
+    }
+    if (formShifts.length === 0) {
+      setFormError('Selecione pelo menos um turno.');
+      return;
+    }
+
+    const data = {
+      name: formName.trim(),
+      address: formAddress.trim(),
+      phone: formPhone.trim(),
+      shifts: formShifts,
+    };
+
+    setSubmitting(true);
+    try {
+      await updateSchool(mySchool.id, data);
+      setMySchool({ ...mySchool, ...data });
+      setEditingMine(false);
+      resetForm();
+    } catch (err) {
+      setFormError(extractApiErrorMessage(err, 'Erro ao atualizar escola.'));
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   /** Rebusca a lista de Cantinas disponíveis na API */
@@ -211,6 +262,56 @@ export default function Schools() {
     );
   }
 
+  // Cantina — edição da própria escola
+  if (!isAdmin && mySchool && editingMine) {
+    return (
+      <div className="schools-page">
+        <h1>Minha escola</h1>
+        <form className="panel" onSubmit={handleSubmitMine} noValidate>
+          <h2>Editar escola</h2>
+
+          {formError && <div className="form-alert" role="alert">{formError}</div>}
+
+          <div className="field">
+            <label htmlFor="my-school-name">Nome</label>
+            <input id="my-school-name" value={formName} onChange={e => setFormName(e.target.value)} />
+          </div>
+
+          <div className="field">
+            <label htmlFor="my-school-address">Endereço</label>
+            <input id="my-school-address" value={formAddress} onChange={e => setFormAddress(e.target.value)} />
+          </div>
+
+          <div className="field">
+            <label htmlFor="my-school-phone">Telefone</label>
+            <input id="my-school-phone" value={formPhone} onChange={e => setFormPhone(e.target.value)} />
+          </div>
+
+          <fieldset className="field">
+            <legend>Turnos</legend>
+            {SHIFT_OPTIONS.map(opt => (
+              <label key={opt.value} className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={formShifts.includes(opt.value)}
+                  onChange={() => toggleShift(opt.value)}
+                />
+                {opt.label}
+              </label>
+            ))}
+          </fieldset>
+
+          <div className="form-actions">
+            <button type="submit" className="btn-primary" disabled={submitting}>
+              {submitting ? 'Salvando…' : 'Salvar alterações'}
+            </button>
+            <button type="button" className="btn-secondary" onClick={cancelEditMine}>Cancelar</button>
+          </div>
+        </form>
+      </div>
+    );
+  }
+
   // Cantina — visualização
   if (!isAdmin && mySchool) {
     return (
@@ -224,6 +325,7 @@ export default function Schools() {
             const opt = SHIFT_OPTIONS.find(o => o.value === s);
             return opt ? opt.label : s;
           }).join(', ')}</p>
+          <button type="button" className="btn-secondary" onClick={startEditMine}>Editar escola</button>
         </div>
       </div>
     );

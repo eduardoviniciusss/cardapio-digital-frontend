@@ -19,6 +19,7 @@ const NAV_BY_ROLE: Record<string, { to: string; label: string; end?: boolean }[]
     { to: '/categorias', label: 'Categorias' },
     { to: '/produtos', label: 'Produtos' },
     { to: '/cardapios', label: 'Cardápios' },
+    { to: '/pedidos', label: 'Pedidos' },
     { to: '/filhos', label: 'Responsáveis' },
   ],
   Canteen: [
@@ -27,10 +28,12 @@ const NAV_BY_ROLE: Record<string, { to: string; label: string; end?: boolean }[]
     { to: '/categorias', label: 'Categorias' },
     { to: '/produtos', label: 'Produtos' },
     { to: '/cardapios', label: 'Cardápios' },
+    { to: '/pedidos', label: 'Pedidos' },
   ],
   Parent: [
     { to: '/', label: 'Início', end: true },
     { to: '/filhos', label: 'Meus filhos' },
+    { to: '/meus-pedidos', label: 'Meus pedidos' },
   ],
 }
 
