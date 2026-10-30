@@ -2,58 +2,87 @@
    .form-success, .form-hint, .menu-empty e .item-* estão em src/index.css. */
 
 .parent-form {
-  max-width: 480px;
+  max-width: none;
 }
 
-.children-form {
-  margin-bottom: 1.5rem;
-}
-
+/* Formulários em coluna única, como no protótipo */
 .children-form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0 1rem;
-}
-
-/* Cartão de cada filho */
-.child-card {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.85rem;
-  border: 1px solid var(--color-parchment-dark);
-  border-radius: var(--radius-sm);
+}
+
+.children-page .item-list {
+  gap: 12px;
+}
+
+/* Cartão de cada filho (igual ao ".child-card" do protótipo) */
+.child-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--white);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+}
+
+.child-card::before {
+  content: '🧒';
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #dbeafe;
+  font-size: 22px;
 }
 
 .child-card > .btn-secondary {
+  flex: 1 0 100%;
   width: auto;
-  align-self: flex-start;
-  padding: 0.45rem 0.9rem;
-  font-size: 0.85rem;
+  padding: 10px 16px;
+  font-size: 13px;
+  border-radius: var(--radius-sm);
+}
+
+.child-info {
+  flex: 1;
+  min-width: 0;
 }
 
 .child-info strong {
   display: block;
-  margin-bottom: 0.15rem;
+  margin-bottom: 2px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.child-info .item-detail {
+  font-size: 13px;
+  font-weight: 400;
 }
 
 /* Cardápios que aparecem ao clicar em "Ver cardápio" */
 .child-menus {
-  margin-top: 0.25rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--color-parchment-dark);
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--gray-200);
 }
 
 .child-menu-card {
-  background: var(--color-parchment);
+  background: var(--gray-50);
   border-radius: var(--radius-sm);
-  padding: 0.75rem;
-  margin-bottom: 0.5rem;
+  padding: 12px;
+  margin-bottom: 8px;
 }
 
 .child-menu-card h4 {
-  font-size: 0.95rem;
-  margin: 0 0 0.5rem;
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 8px;
 }
 
 .menu-product-list {
@@ -62,26 +91,20 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 4px;
 }
 
 .menu-product-list li {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9rem;
+  gap: 8px;
+  font-size: 13px;
 }
 
 .menu-product-list small {
-  color: var(--color-gray-500);
+  color: var(--gray-500);
 }
 
 .menu-product-list .item-price {
   margin-left: auto;
-}
-
-@media (max-width: 768px) {
-  .children-form-grid {
-    grid-template-columns: 1fr;
-  }
 }

@@ -10,30 +10,30 @@ import ActingBar from './ActingBar'
 import './Layout.css'
 
 /** Links do menu para cada papel */
-const NAV_BY_ROLE: Record<string, { to: string; label: string; end?: boolean }[]> = {
+const NAV_BY_ROLE: Record<string, { to: string; label: string; icon: string; end?: boolean }[]> = {
   // O Administrador faz tudo: gerencia escolas e, escolhendo uma escola ou um
   // responsável na barra "atuar como", usa as mesmas telas da Cantina e do Responsável.
   Administrator: [
-    { to: '/', label: 'Início', end: true },
-    { to: '/escolas', label: 'Escolas' },
-    { to: '/categorias', label: 'Categorias' },
-    { to: '/produtos', label: 'Produtos' },
-    { to: '/cardapios', label: 'Cardápios' },
-    { to: '/pedidos', label: 'Pedidos' },
-    { to: '/filhos', label: 'Responsáveis' },
+    { to: '/', label: 'Início', icon: '🏠', end: true },
+    { to: '/escolas', label: 'Escolas', icon: '🏫' },
+    { to: '/categorias', label: 'Categorias', icon: '🏷️' },
+    { to: '/produtos', label: 'Produtos', icon: '🥪' },
+    { to: '/cardapios', label: 'Cardápios', icon: '🍽️' },
+    { to: '/pedidos', label: 'Pedidos', icon: '🧾' },
+    { to: '/filhos', label: 'Responsáveis', icon: '👨‍👩‍👧' },
   ],
   Canteen: [
-    { to: '/', label: 'Início', end: true },
-    { to: '/escolas', label: 'Minha escola' },
-    { to: '/categorias', label: 'Categorias' },
-    { to: '/produtos', label: 'Produtos' },
-    { to: '/cardapios', label: 'Cardápios' },
-    { to: '/pedidos', label: 'Pedidos' },
+    { to: '/', label: 'Início', icon: '🏠', end: true },
+    { to: '/escolas', label: 'Escola', icon: '🏫' },
+    { to: '/categorias', label: 'Categorias', icon: '🏷️' },
+    { to: '/produtos', label: 'Produtos', icon: '🥪' },
+    { to: '/cardapios', label: 'Cardápios', icon: '🍽️' },
+    { to: '/pedidos', label: 'Pedidos', icon: '🧾' },
   ],
   Parent: [
-    { to: '/', label: 'Início', end: true },
-    { to: '/filhos', label: 'Meus filhos' },
-    { to: '/meus-pedidos', label: 'Meus pedidos' },
+    { to: '/', label: 'Início', icon: '🏠', end: true },
+    { to: '/filhos', label: 'Filhos', icon: '👨‍👩‍👧' },
+    { to: '/meus-pedidos', label: 'Pedidos', icon: '🧾' },
   ],
 }
 
@@ -55,25 +55,13 @@ export default function Layout({ children }: { children: ReactNode }) {
     <div className="layout">
       <header className="topbar">
         <Link to="/" className="topbar-brand">
-          🍽️ Cardápio Digital
+          <span className="topbar-brand__logo" aria-hidden="true">🥗</span>
+          Cardápio Digital
         </Link>
 
-        <nav className="topbar-nav" aria-label="Menu principal">
-          {navLinks.map((link) => (
-            <NavLink key={link.to} to={link.to} end={link.end}>
-              {link.label}
-            </NavLink>
-          ))}
-        </nav>
-
         <div className="topbar-user">
-          {user && (
-            <>
-              <span className="topbar-role-badge">{roleLabel}</span>
-              <span className="topbar-username">{user.name}</span>
-            </>
-          )}
-          <button type="button" onClick={logout}>
+          {user && <span className="chip chip-green topbar-role-badge">{roleLabel}</span>}
+          <button type="button" className="topbar-logout" onClick={logout}>
             Sair
           </button>
         </div>
@@ -95,6 +83,20 @@ export default function Layout({ children }: { children: ReactNode }) {
           children
         )}
       </main>
+
+      <nav
+        className={`bottom-nav${navLinks.length > 5 ? ' bottom-nav--scroll' : ''}`}
+        aria-label="Menu principal"
+      >
+        {navLinks.map((link) => (
+          <NavLink key={link.to} to={link.to} end={link.end} className="bn-item">
+            <span className="bn-icon" aria-hidden="true">
+              {link.icon}
+            </span>
+            <span className="bn-label">{link.label}</span>
+          </NavLink>
+        ))}
+      </nav>
     </div>
   )
 }

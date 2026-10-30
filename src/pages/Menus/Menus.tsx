@@ -226,7 +226,7 @@ export default function Menus() {
         {formError && <div className="form-alert" role="alert">{formError}</div>}
 
         <div className="menus-form-row">
-          <div className="field" style={{ flex: 1 }}>
+          <div className="field">
             <label htmlFor="menu-name">Nome do cardápio</label>
             <input
               id="menu-name"

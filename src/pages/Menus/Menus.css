@@ -1,33 +1,28 @@
 /* Regras que existem só na tela de Cardápios.
    Chips, .sr-only, .btn-sm e .menu-empty estão em src/index.css. */
 
-/* Formulário em linha: campo de nome + botões */
-.menus-form {
-  margin-bottom: 1.5rem;
-}
-
+/* Formulário: campo de nome + botões, empilhados */
 .menus-form-row {
   display: flex;
-  gap: 1rem;
-  align-items: flex-end;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .menus-form-row .field {
-  flex: 1;
+  flex: none;
   margin-bottom: 0;
 }
 
-/* Grade de cartões de cardápio */
 .menus-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: 1fr;
+  gap: 16px;
 }
 
 .menu-card {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 12px;
 }
 
 .menu-card-header {
@@ -37,39 +32,35 @@
 }
 
 .menu-card-header h3 {
-  font-size: 1.05rem;
+  font-size: 16px;
+  font-weight: 700;
   margin: 0;
 }
 
 .menu-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 6px;
 }
 
 .menu-add-product {
   display: flex;
-  gap: 0.5rem;
+  gap: 8px;
   align-items: center;
 }
 
 .menu-add-product select {
   flex: 1;
   min-width: 0;
-  padding: 0.45rem 0.5rem;
-  border: 1.5px solid var(--color-parchment-dark);
+  padding: 10px 12px;
+  border: 1.5px solid var(--gray-200);
   border-radius: var(--radius-sm);
-  font-size: 0.88rem;
-  background: var(--color-white);
+  font-size: 14px;
+  background: var(--white);
+  color: var(--gray-900);
+  outline: none;
 }
 
-@media (max-width: 768px) {
-  .menus-form-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .menus-grid {
-    grid-template-columns: 1fr;
-  }
+.menu-add-product select:focus {
+  border-color: var(--green);
 }

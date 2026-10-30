@@ -1,111 +1,106 @@
+/* Telas de Login e Cadastro: mesmo visual do protótipo
+   (logo + título no topo, formulário em coluna única). */
+
 .auth-screen {
+  width: 100%;
+  max-width: var(--app-width);
   min-height: 100vh;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, var(--green-bg) 0%, var(--white) 38%);
 }
 
-@media (min-width: 900px) {
+@media (min-width: 520px) {
   .auth-screen {
-    grid-template-columns: 1fr 1fr;
+    box-shadow: var(--shadow-lg);
   }
 }
 
+/* Bloco da marca (antes era a coluna verde lateral) */
 .auth-screen__brand {
-  display: none;
-  background: var(--color-forest);
-  color: var(--color-white);
-  padding: 4rem 3.5rem;
-  position: relative;
-  overflow: hidden;
-}
-
-@media (min-width: 900px) {
-  .auth-screen__brand {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-}
-
-.auth-screen__brand::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    repeating-linear-gradient(
-      135deg,
-      rgba(234, 88, 12, 0.08) 0px,
-      rgba(234, 88, 12, 0.08) 1px,
-      transparent 1px,
-      transparent 34px
-    );
-  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 56px 32px 8px;
+  text-align: center;
 }
 
 .auth-screen__mark {
-  font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  z-index: 1;
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--gray-900);
+}
+
+.auth-screen__mark::before {
+  content: '🥗';
+  display: block;
+  margin-bottom: 12px;
+  font-size: 64px;
+  line-height: 1;
 }
 
 .auth-screen__headline {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(2.25rem, 4vw, 3.25rem);
-  line-height: 1.08;
-  max-width: 15ch;
-  z-index: 1;
   margin: 0;
+  max-width: 28ch;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--gray-500);
 }
 
-.auth-screen__subtext {
-  font-size: 1.0625rem;
-  line-height: 1.6;
-  max-width: 38ch;
-  color: rgba(255, 255, 255, 0.82);
-  z-index: 1;
+.auth-screen__subtext,
+.auth-screen__brand > span:empty {
+  display: none;
 }
 
 .auth-screen__panel {
+  flex: 1;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 2.5rem 1.5rem;
-  background: var(--color-parchment);
+  padding: 24px 24px 40px;
 }
 
 .auth-form {
   width: 100%;
-  max-width: 26rem;
 }
 
 .auth-form__eyebrow {
-  font-size: 0.9rem;
-  color: var(--color-forest-light);
-  margin: 0 0 0.5rem;
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gray-400);
 }
 
 .auth-form__title {
-  font-family: var(--font-display);
-  font-size: 2rem;
+  margin: 0 0 6px;
+  font-size: 26px;
   font-weight: 800;
-  margin: 0 0 0.5rem;
-  color: var(--color-ink);
+  line-height: 1.2;
+  color: var(--gray-900);
 }
 
 .auth-form__hint {
-  margin: 0 0 2rem;
-  color: var(--color-gray-500);
+  margin: 0 0 24px;
+  font-size: 15px;
   line-height: 1.5;
+  color: var(--gray-500);
 }
 
 .auth-form__hint a {
-  color: var(--color-forest);
-  font-weight: 600;
+  color: var(--green);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.auth-form .btn-primary {
+  margin-top: 8px;
 }
 
 /* As classes de formulário (.field, .form-alert, .btn-primary, etc.) são
-   compartilhadas por várias telas (Login, Cadastro, Escolas...) e por isso
-   agora vivem em src/index.css (carregado globalmente), não aqui. */
+   compartilhadas e vivem em src/index.css (carregado globalmente). */

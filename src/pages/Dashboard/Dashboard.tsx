@@ -18,13 +18,71 @@ function httpStatus(err: unknown): number | undefined {
   return isAxiosError(err) ? err.response?.status : undefined
 }
 
-/** Cartão de resumo clicável (número grande + legenda) */
-function SummaryCard({ to, value, label }: { to: string; value: number; label: string }) {
+function greetingByHour(): string {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Bom dia,'
+  if (hour < 18) return 'Boa tarde,'
+  return 'Boa noite,'
+}
+
+interface HeroStat {
+  value: number
+  label: string
+}
+
+/** Cabeçalho colorido do início: saudação + números principais */
+function Hero({
+  canteen,
+  school,
+  stats = [],
+}: {
+  canteen?: boolean
+  school?: string
+  stats?: HeroStat[]
+}) {
+  const { user } = useAuth()
+
   return (
-    <Link to={to} className="summary-card">
-      <span className="summary-card__value">{value}</span>
-      <span className="summary-card__label">{label}</span>
-    </Link>
+    <div className={`hero${canteen ? ' hero--canteen' : ''}`}>
+      <div className="hero__greeting">{greetingByHour()}</div>
+      <div className="hero__name">{user?.name ?? 'Olá'} 👋</div>
+      {school && <div className="hero__school">{school} 🏫</div>}
+      {stats.length > 0 && (
+        <div className="hero__stats">
+          {stats.map((stat) => (
+            <div key={stat.label} className="hero__stat">
+              <span className="hero__stat-value">{stat.value}</span>
+              <span className="hero__stat-label">{stat.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+interface ActionItem {
+  to: string
+  icon: string
+  label: string
+}
+
+/** Ações rápidas (cartões 2 por linha) */
+function Actions({ items }: { items: ActionItem[] }) {
+  return (
+    <>
+      <div className="section-label">Ações rápidas</div>
+      <div className="action-grid">
+        {items.map((item) => (
+          <Link key={item.to} to={item.to} className="action-card">
+            <span className="action-card__icon" aria-hidden="true">
+              {item.icon}
+            </span>
+            <span className="action-card__label">{item.label}</span>
+          </Link>
+        ))}
+      </div>
+    </>
   )
 }
 
@@ -75,13 +133,17 @@ function AdminPanel() {
   }
 
   return (
-    <div className="summary-grid">
-      <SummaryCard
-        to="/escolas"
-        value={state.schools}
-        label="Escolas cadastradas"
+    <>
+      <Hero stats={[{ value: state.schools, label: 'Escolas cadastradas' }]} />
+      <Actions
+        items={[
+          { to: '/escolas', icon: '🏫', label: 'Escolas' },
+          { to: '/categorias', icon: '🏷️', label: 'Categorias' },
+          { to: '/produtos', icon: '🥪', label: 'Produtos' },
+          { to: '/cardapios', icon: '🍽️', label: 'Cardápios' },
+        ]}
       />
-    </div>
+    </>
   )
 }
 
@@ -147,29 +209,41 @@ function CanteenPanel() {
   }
   if (state.status === 'no-school') {
     return (
-      <div className="info-alert" role="status">
-        Sua conta ainda não está vinculada a uma escola. Peça a um Administrador para criar a escola e
-        vincular à sua conta.
-      </div>
+      <>
+        <Hero canteen />
+        <div className="info-alert" role="status">
+          Sua conta ainda não está vinculada a uma escola. Peça a um Administrador para criar a escola e
+          vincular à sua conta.
+        </div>
+      </>
     )
   }
 
   return (
     <>
-      <p className="dashboard-school">
-        Escola: <strong>{state.schoolName}</strong>
-      </p>
+      <Hero
+        canteen
+        school={state.schoolName}
+        stats={[
+          { value: state.categories, label: 'Categorias' },
+          { value: state.products, label: 'Produtos' },
+          { value: state.menus, label: 'Cardápios' },
+        ]}
+      />
       {state.categories === 0 && (
         <div className="info-alert" role="status">
           Comece pela ordem certa: primeiro categorias, depois produtos, depois cardápios.{' '}
           <Link to="/categorias">Cadastrar categorias</Link>
         </div>
       )}
-      <div className="summary-grid">
-        <SummaryCard to="/categorias" value={state.categories} label="Categorias" />
-        <SummaryCard to="/produtos" value={state.products} label="Produtos" />
-        <SummaryCard to="/cardapios" value={state.menus} label="Cardápios" />
-      </div>
+      <Actions
+        items={[
+          { to: '/pedidos', icon: '🧾', label: 'Pedidos do dia' },
+          { to: '/cardapios', icon: '🍽️', label: 'Gestão de Cardápio' },
+          { to: '/produtos', icon: '🥪', label: 'Produtos' },
+          { to: '/categorias', icon: '🏷️', label: 'Categorias' },
+        ]}
+      />
     </>
   )
 }
@@ -219,17 +293,26 @@ function ParentPanel() {
   }
   if (state.status === 'needs-registration') {
     return (
-      <div className="info-alert" role="status">
-        Falta pouco! Complete seu cadastro de responsável para registrar seus filhos.{' '}
-        <Link to="/filhos">Completar cadastro</Link>
-      </div>
+      <>
+        <Hero />
+        <div className="info-alert" role="status">
+          Falta pouco! Complete seu cadastro de responsável para registrar seus filhos.{' '}
+          <Link to="/filhos">Completar cadastro</Link>
+        </div>
+      </>
     )
   }
 
   return (
-    <div className="summary-grid">
-      <SummaryCard to="/filhos" value={state.children} label="Filhos cadastrados" />
-    </div>
+    <>
+      <Hero stats={[{ value: state.children, label: 'Filhos cadastrados' }]} />
+      <Actions
+        items={[
+          { to: '/filhos', icon: '👨‍👩‍👧', label: 'Meus filhos' },
+          { to: '/meus-pedidos', icon: '🧾', label: 'Meus pedidos' },
+        ]}
+      />
+    </>
   )
 }
 
@@ -240,8 +323,6 @@ export function Dashboard() {
 
   return (
     <div className="dashboard-page">
-      <h1>Olá{user?.name ? `, ${user.name}` : ''} 👋</h1>
-
       {user?.role === UserRole.Administrator && <AdminPanel />}
       {user?.role === UserRole.Canteen && <CanteenPanel />}
       {user?.role === UserRole.Parent && <ParentPanel />}

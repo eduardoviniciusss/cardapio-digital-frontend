@@ -2,7 +2,7 @@
    Usa as variáveis de src/index.css; só o verde de destaque é novo. */
 
 .cmv {
-  --cmv-green: #2f8f46;
+  --cmv-green: var(--green);
   margin-bottom: 0.75rem;
 }
 
@@ -15,16 +15,16 @@
 
 .cmv-group-label {
   padding: 0;
-  margin: 1rem 0 0.5rem;
-  font-size: 0.78rem;
+  margin: 16px 0 8px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--color-gray-500);
+  color: var(--gray-400);
 }
 
 .cmv-group-label span {
-  color: var(--color-ink);
+  color: var(--gray-700);
 }
 
 /* Card de cada item */
@@ -32,23 +32,23 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.6rem;
-  padding: 0.7rem;
-  background: var(--color-white);
-  border: 1.5px solid var(--color-parchment-dark);
-  border-radius: 14px;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 12px;
+  background: var(--white);
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 
 .cmv-option:hover {
-  border-color: var(--color-gray-400);
+  border-color: var(--gray-300);
 }
 
 .cmv-option.is-selected {
   border-color: var(--cmv-green);
-  background: var(--color-forest-bg);
+  background: var(--green-bg);
 }
 
 /* O input fica escondido, mas continua acessível pelo teclado */
@@ -59,19 +59,19 @@
 }
 
 .cmv-option:has(input:focus-visible) {
-  outline: 2px solid var(--color-saffron-dark);
+  outline: 2px solid var(--green);
   outline-offset: 2px;
 }
 
 .cmv-radio {
   flex: none;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   display: grid;
   place-items: center;
-  border: 2px solid var(--color-gray-400);
+  border: 2px solid var(--gray-300);
   border-radius: 50%;
-  background: var(--color-white);
+  background: var(--white);
 }
 
 .cmv-option.is-selected .cmv-radio {
@@ -89,12 +89,12 @@
 
 .cmv-thumb {
   flex: none;
-  width: 52px;
-  height: 52px;
+  width: 56px;
+  height: 56px;
   display: grid;
   place-items: center;
   font-size: 26px;
-  background: var(--color-gray-100);
+  background: var(--gray-100);
   border-radius: 12px;
 }
 
@@ -107,34 +107,35 @@
 
 .cmv-name {
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 14px;
+  color: var(--gray-900);
 }
 
 .cmv-price {
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 14px;
   color: var(--cmv-green);
 }
 
 /* Resumo da escolha */
 .cmv-summary {
-  margin-top: 1rem;
-  padding: 0.9rem 1rem;
-  background: var(--color-forest-bg);
-  border: 1.5px solid var(--cmv-green);
-  border-radius: 14px;
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: var(--green-bg);
+  border: 1px solid rgba(22, 163, 74, 0.2);
+  border-radius: var(--radius);
 }
 
 .cmv-row {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.3rem 0;
-  font-size: 0.9rem;
+  padding: 10px 0;
+  font-size: 14px;
 }
 
 .cmv-row span {
-  color: var(--color-gray-600);
+  color: var(--gray-600);
 }
 
 .cmv-row strong {
@@ -142,66 +143,66 @@
 }
 
 .cmv-total {
-  margin-top: 0.4rem;
-  padding-top: 0.65rem;
-  border-top: 1px solid var(--color-parchment-dark);
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--gray-100);
   align-items: baseline;
 }
 
 .cmv-total span {
-  color: var(--color-ink);
+  color: var(--gray-900);
   font-weight: 700;
 }
 
 .cmv-total strong {
-  font-size: 1.25rem;
+  font-size: 17px;
   color: var(--cmv-green);
 }
 
 .cmv-clear {
-  margin-top: 0.6rem;
+  margin-top: 8px;
   padding: 0;
   border: 0;
   background: none;
-  font-size: 0.85rem;
-  color: var(--color-gray-600);
+  font-size: 13px;
+  color: var(--gray-600);
   text-decoration: underline;
   cursor: pointer;
 }
 
 /* Resumo ainda sem escolha: só uma dica discreta */
 .cmv-summary.is-empty {
-  background: var(--color-gray-100);
-  border: 1.5px dashed var(--color-parchment-dark);
+  background: var(--gray-50);
+  border: 1.5px dashed var(--gray-200);
 }
 
 .cmv-hint {
   margin: 0;
-  font-size: 0.88rem;
-  color: var(--color-gray-500);
+  font-size: 13px;
+  color: var(--gray-500);
   text-align: center;
 }
 
 /* Botão principal da tela */
 .cmv-confirm {
   width: 100%;
-  margin-top: 0.9rem;
-  padding: 15px 18px;
+  margin-top: 16px;
+  padding: 16px;
   border: 0;
-  border-radius: 14px;
+  border-radius: var(--radius);
   background: var(--cmv-green);
   color: #fff;
-  font-size: 1rem;
+  font-size: 16px;
   font-weight: 700;
   cursor: pointer;
   transition: opacity 0.15s ease, transform 0.1s ease;
 }
 
 .cmv-confirm:active:not(:disabled) {
-  transform: scale(0.99);
+  transform: scale(0.97);
 }
 
 .cmv-confirm:disabled {
-  opacity: 0.45;
+  opacity: 0.5;
   cursor: not-allowed;
 }
