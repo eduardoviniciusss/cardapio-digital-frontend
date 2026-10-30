@@ -494,3 +494,28 @@ a:focus-visible {
     transition-duration: 0.01ms !important;
   }
 }
+.password-input {
+  position: relative;
+}
+
+.password-input input {
+  width: 100%;
+  padding-right: 2.75rem;
+}
+
+.password-input__toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  display: flex;
+  padding: 0.35rem;
+  border: 0;
+  background: none;
+  color: var(--color-gray-500);
+  cursor: pointer;
+}
+
+.password-input__toggle:hover {
+  color: var(--color-forest);
+}

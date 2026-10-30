@@ -51,7 +51,12 @@ const TRANSLATION_MAP: Record<string, string> = {
   'birth date is required': 'Informe a data de nascimento.',
   'this child is already registered at this school': 'Este filho já está cadastrado nesta escola.',
   'this child is already linked to another school and cannot be registered again':
-    'Este filho já está vinculado a outra escola e não pode ser cadastrado de novo.',
+  'Este filho já está vinculado a outra escola e não pode ser cadastrado de novo.',
+  'school code is required': 'Informe o código da escola.',
+  'invalid school code': 'Código de escola inválido. Confira com a escola.',
+  'canteen name is required': 'Informe o nome da cantina.',
+  'canteen email is required': 'Informe o e-mail da cantina.',
+  'canteen password must have at least 6 characters': 'A senha da cantina deve ter pelo menos 6 caracteres.',
 };
 
 /** Normaliza uma mensagem para comparação: minúsculas, sem ponto final, sem espaços extras */

@@ -48,7 +48,6 @@ export interface RegisterRequest {
   name: string
   email: string
   password: string
-  role: number
 }
 
 // RegisterResponse removido: o backend responde com texto simples

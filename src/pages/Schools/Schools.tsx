@@ -1,17 +1,17 @@
-// Tela de Escolas: CRUD para o Administrador, visualização para a Cantina.
+// Tela de Escolas: CRUD para o Administrador (que também cria a conta da Cantina), visualização para a Cantina.
 
 import { useEffect, useState, type FormEvent } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import {
   getAllSchools,
-  getAvailableCanteens,
   getMySchool,
   createSchool,
   updateSchool,
   deleteSchool,
 } from '@/services/schoolService';
 import { extractApiErrorMessage } from '@/services/authService';
-import type { AvailableCanteen, School } from '@/types/school';
+import type { School } from '@/types/school';
+import PasswordInput from '@/components/PasswordInput';
 import './Schools.css';
 
 type ViewState = 'loading' | 'no-school' | 'forbidden' | 'error' | 'ready';
@@ -32,7 +32,6 @@ export default function Schools() {
 
   // --- dados ---
   const [schools, setSchools] = useState<School[]>([]);
-  const [canteens, setCanteens] = useState<AvailableCanteen[]>([]);
   const [mySchool, setMySchool] = useState<School | null>(null);
 
   // --- formulário ---
@@ -40,7 +39,18 @@ export default function Schools() {
   const [formAddress, setFormAddress] = useState('');
   const [formPhone, setFormPhone] = useState('');
   const [formShifts, setFormShifts] = useState<string[]>([]);
-  const [formCanteen, setFormCanteen] = useState<number | ''>('');
+
+  // Conta da Cantina (criada junto com a escola)
+  const [formCanteenName, setFormCanteenName] = useState('');
+  const [formCanteenEmail, setFormCanteenEmail] = useState('');
+  const [formCanteenPassword, setFormCanteenPassword] = useState('');
+
+  // Aviso exibido ao Admin após criar a escola (código para os pais + login da cantina)
+  const [createdInfo, setCreatedInfo] = useState<{
+    code: string;
+    email: string;
+  } | null>(null);
+
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingMine, setEditingMine] = useState(false); // Cantina editando a própria escola
   const [formError, setFormError] = useState('');
@@ -53,10 +63,9 @@ export default function Schools() {
     async function load() {
       try {
         if (isAdmin) {
-          const [s, c] = await Promise.all([getAllSchools(), getAvailableCanteens()]);
+          const s = await getAllSchools();
           if (!active) return;
           setSchools(s);
-          setCanteens(c);
           setView('ready');
         } else {
           try {
@@ -93,7 +102,9 @@ export default function Schools() {
     setFormAddress('');
     setFormPhone('');
     setFormShifts([]);
-    setFormCanteen('');
+    setFormCanteenName('');
+    setFormCanteenEmail('');
+    setFormCanteenPassword('');
     setEditingId(null);
     setFormError('');
   }
@@ -163,16 +174,6 @@ export default function Schools() {
     }
   }
 
-  /** Rebusca a lista de Cantinas disponíveis na API */
-  async function refreshCanteens() {
-    try {
-      const c = await getAvailableCanteens();
-      setCanteens(c);
-    } catch {
-      // Se falhar, não é crítico; a lista pode ficar desatualizada temporariamente
-    }
-  }
-
   // --- submit ---
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -188,9 +189,13 @@ export default function Schools() {
     }
 
     if (editingId === null) {
-      // Criando nova escola
-      if (formCanteen === '') {
-        setFormError('Selecione a Cantina responsável.');
+      // Criando nova escola (junto com a conta da Cantina)
+      if (!formCanteenName.trim() || !formCanteenEmail.trim() || !formCanteenPassword) {
+        setFormError('Informe nome, e-mail e senha da cantina.');
+        return;
+      }
+      if (formCanteenPassword.length < 6) {
+        setFormError('A senha da cantina deve ter pelo menos 6 caracteres.');
         return;
       }
 
@@ -201,11 +206,12 @@ export default function Schools() {
           address: formAddress.trim(),
           phone: formPhone.trim(),
           shifts: formShifts,
-          canteenUserId: Number(formCanteen),
+          canteenName: formCanteenName.trim(),
+          canteenEmail: formCanteenEmail.trim(),
+          canteenPassword: formCanteenPassword,
         });
         setSchools(prev => [...prev, created]);
-        // Rebusca as Cantinas disponíveis após criar escola
-        await refreshCanteens();
+        setCreatedInfo({ code: created.code ?? '', email: formCanteenEmail.trim() });
         resetForm();
       } catch (err) {
         setFormError(extractApiErrorMessage(err, 'Erro ao criar escola.'));
@@ -240,8 +246,6 @@ export default function Schools() {
       await deleteSchool(id);
       setSchools(prev => prev.filter(s => s.id !== id));
       if (editingId === id) resetForm();
-      // Rebusca as Cantinas disponíveis após excluir escola
-      await refreshCanteens();
     } catch (err) {
       setFormError(extractApiErrorMessage(err, 'Erro ao excluir escola.'));
     }
@@ -325,6 +329,8 @@ export default function Schools() {
             const opt = SHIFT_OPTIONS.find(o => o.value === s);
             return opt ? opt.label : s;
           }).join(', ')}</p>
+          <p><strong>Código da escola:</strong> {mySchool.code}</p>
+          <p className="form-hint">Informe este código aos pais para cadastrarem os filhos.</p>
           <button type="button" className="btn-secondary" onClick={startEditMine}>Editar escola</button>
         </div>
       </div>
@@ -335,6 +341,14 @@ export default function Schools() {
   return (
     <div className="schools-page">
       <h1>Escolas</h1>
+
+      {/* Aviso para o admin anotar o código */}
+      {createdInfo && (
+        <div className="form-success" role="status">
+          Escola criada! Código para os pais: <strong>{createdInfo.code}</strong>.
+          Login da cantina: <strong>{createdInfo.email}</strong>.
+        </div>
+      )}
 
       <div className="schools-layout">
         {/* Formulário */}
@@ -373,15 +387,26 @@ export default function Schools() {
           </fieldset>
 
           {editingId === null && (
-            <div className="field">
-              <label htmlFor="school-canteen">Cantina responsável</label>
-              <select id="school-canteen" value={formCanteen} onChange={e => setFormCanteen(e.target.value === '' ? '' : Number(e.target.value))}>
-                <option value="">Selecione…</option>
-                {canteens.map(c => (
-                  <option key={c.id} value={c.id}>{c.name} ({c.email})</option>
-                ))}
-              </select>
-            </div>
+            <>
+              <h3>Conta da cantina</h3>
+
+              <div className="field">
+                <label htmlFor="canteen-name">Nome do responsável pela cantina</label>
+                <input id="canteen-name" value={formCanteenName} onChange={e => setFormCanteenName(e.target.value)} />
+              </div>
+
+              <div className="field">
+                <label htmlFor="canteen-email">E-mail de login</label>
+                <input id="canteen-email" type="email" autoComplete="off"
+                  value={formCanteenEmail} onChange={e => setFormCanteenEmail(e.target.value)} />
+              </div>
+
+              <div className="field">
+                <label htmlFor="canteen-password">Senha</label>
+                <PasswordInput id="canteen-password" autoComplete="new-password"
+                  value={formCanteenPassword} onChange={e => setFormCanteenPassword(e.target.value)} />
+              </div>
+            </>
           )}
 
           <div className="form-actions">
@@ -413,7 +438,8 @@ export default function Schools() {
                         return opt ? opt.label : sh;
                       }).join(', ')}
                     </span>
-                    <span className="item-detail">🍽️ {s.canteenName}</span>
+                    <span className="item-detail">🔑 Código: <strong>{s.code}</strong></span>
+                    <span className="item-detail">🍽️ {s.canteenName} ({s.canteenEmail})</span>
                   </div>
                   <div className="item-actions">
                     <button className="btn-link" onClick={() => startEdit(s)}>Editar</button>

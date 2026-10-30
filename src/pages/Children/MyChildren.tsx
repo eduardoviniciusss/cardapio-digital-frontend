@@ -1,5 +1,6 @@
 // Tela "Meus filhos": cadastro de responsável e filhos (exclusivo do papel Parent).
 // Ao abrir, verifica se o responsável já completou o cadastro.
+// A escola do filho é informada pelo código que a Cantina repassa aos pais.
 // A escolha do cardápio fica na tela própria ChildMenuPage (/filhos/:id/cardapio).
 
 import { useEffect, useState, type FormEvent } from 'react';
@@ -9,12 +10,10 @@ import { UserRole } from '@/types/auth';
 import { getActingParent } from '@/services/acting';
 import { getChildren, createChild } from '@/services/childService';
 import { createParent } from '@/services/parentService';
-import { getSchoolOptions } from '@/services/schoolService';
 import { extractApiErrorMessage } from '@/services/authService';
 import { maskCpf, maskPhone, isValidCpf, isValidPhone, onlyDigits } from '@/utils/masks';
 import { formatDate, dateInputToUtcIso, todayInputValue } from '@/utils/format';
 import type { Child } from '@/types/family';
-import type { SchoolOption } from '@/types/school';
 import './MyChildren.css';
 
 // Possíveis estados da tela
@@ -42,14 +41,10 @@ export default function MyChildren() {
   const [childName, setChildName] = useState('');
   const [childBirth, setChildBirth] = useState('');
   const [childPhone, setChildPhone] = useState('');
-  const [childSchoolId, setChildSchoolId] = useState<number | ''>('');
+  const [childSchoolCode, setChildSchoolCode] = useState('');
   const [childError, setChildError] = useState('');
   const [childSuccess, setChildSuccess] = useState('');
   const [childSubmitting, setChildSubmitting] = useState(false);
-
-  // Opções de escola para o select
-  const [schoolOptions, setSchoolOptions] = useState<SchoolOption[]>([]);
-  const [schoolOptionsError, setSchoolOptionsError] = useState('');
 
   // Carrega filhos ao montar
   useEffect(() => {
@@ -61,8 +56,6 @@ export default function MyChildren() {
         if (!active) return;
         setChildren(data);
         setView('ready');
-        // Carrega opções de escola para o formulário de novo filho
-        loadSchoolOptions();
       } catch (err: unknown) {
         if (!active) return;
         const status = (err as { response?: { status?: number } }).response?.status;
@@ -78,18 +71,6 @@ export default function MyChildren() {
     load();
     return () => { active = false; };
   }, []);
-
-  async function loadSchoolOptions() {
-    try {
-      const options = await getSchoolOptions();
-      setSchoolOptions(options);
-      setSchoolOptionsError('');
-    } catch {
-      setSchoolOptionsError(
-        'Não foi possível carregar a lista de escolas. A funcionalidade pode ainda não estar disponível no servidor.',
-      );
-    }
-  }
 
   // --- Cadastro do responsável ---
   async function handleParentSubmit(e: FormEvent) {
@@ -121,7 +102,6 @@ export default function MyChildren() {
       const data = await getChildren();
       setChildren(data);
       setView('ready');
-      loadSchoolOptions();
     } catch (err) {
       setParentError(extractApiErrorMessage(err, 'Erro ao completar cadastro.'));
     } finally {
@@ -147,8 +127,8 @@ export default function MyChildren() {
       setChildError('Telefone inválido. Informe 10 ou 11 dígitos.');
       return;
     }
-    if (childSchoolId === '') {
-      setChildError('Selecione a escola.');
+    if (!childSchoolCode.trim()) {
+      setChildError('Informe o código da escola.');
       return;
     }
 
@@ -158,7 +138,7 @@ export default function MyChildren() {
         name: childName.trim(),
         birthDate: dateInputToUtcIso(childBirth),
         phone: onlyDigits(childPhone),
-        schoolId: Number(childSchoolId),
+        schoolCode: childSchoolCode.trim().toUpperCase(),
       });
 
       // Sucesso: limpa o formulário e recarrega a lista
@@ -166,7 +146,7 @@ export default function MyChildren() {
       setChildName('');
       setChildBirth('');
       setChildPhone('');
-      setChildSchoolId('');
+      setChildSchoolCode('');
 
       const data = await getChildren();
       setChildren(data);
@@ -251,7 +231,6 @@ export default function MyChildren() {
 
         {childError && <div className="form-alert" role="alert">{childError}</div>}
         {childSuccess && <div className="form-success" role="alert">{childSuccess}</div>}
-        {schoolOptionsError && <div className="form-alert" role="alert">{schoolOptionsError}</div>}
 
         <div className="children-form-grid">
           <div className="field">
@@ -290,18 +269,17 @@ export default function MyChildren() {
           </div>
 
           <div className="field">
-            <label htmlFor="child-school">Escola</label>
-            <select
-              id="child-school"
-              value={childSchoolId}
-              onChange={e => setChildSchoolId(e.target.value === '' ? '' : Number(e.target.value))}
-              aria-invalid={!!childError && childSchoolId === ''}
-            >
-              <option value="">Selecione a escola…</option>
-              {schoolOptions.map(s => (
-                <option key={s.id} value={s.id}>{s.name}</option>
-              ))}
-            </select>
+            <label htmlFor="child-school-code">Código da escola</label>
+            <input
+              id="child-school-code"
+              value={childSchoolCode}
+              onChange={e => setChildSchoolCode(e.target.value.toUpperCase())}
+              placeholder="Ex.: K7M2XQ4R"
+              maxLength={12}
+              autoComplete="off"
+              aria-invalid={!!childError && !childSchoolCode.trim()}
+            />
+            <p className="field__help">Peça o código à escola do seu filho.</p>
           </div>
         </div>
 

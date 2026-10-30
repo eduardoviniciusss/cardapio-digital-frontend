@@ -35,8 +35,9 @@ export interface ChildPayload {
   name: string;
   birthDate: string;
   phone: string;
-  schoolId: number;
+  schoolCode: string;
 }
+
 
 // Cardápio com produtos (resposta de GET /children/{id}/menus)
 export interface ChildMenu {

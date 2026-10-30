@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'
 import { isAxiosError } from 'axios'
 import { useAuth } from '@/context/AuthContext'
 import { extractApiErrorMessage } from '@/services/authService'
-import { getAllSchools, getAvailableCanteens, getMySchool } from '@/services/schoolService'
+import { getAllSchools, getMySchool } from '@/services/schoolService'
 import { getCategories } from '@/services/categoryService'
 import { getProducts } from '@/services/productService'
 import { getMenus } from '@/services/menuService'
@@ -33,7 +33,7 @@ function SummaryCard({ to, value, label }: { to: string; value: number; label: s
 type AdminState =
   | { status: 'loading' }
   | { status: 'error'; message: string }
-  | { status: 'ready'; schools: number; freeCanteens: number }
+  | { status: 'ready'; schools: number }
 
 function AdminPanel() {
   const [state, setState] = useState<AdminState>({ status: 'loading' })
@@ -41,23 +41,31 @@ function AdminPanel() {
   useEffect(() => {
     let active = true
 
-    async function load() {
-      try {
-        const [schools, canteens] = await Promise.all([getAllSchools(), getAvailableCanteens()])
+    getAllSchools()
+      .then((schools) => {
         if (!active) return
-        setState({ status: 'ready', schools: schools.length, freeCanteens: canteens.length })
-      } catch (err) {
+        setState({
+          status: 'ready',
+          schools: schools.length,
+        })
+      })
+      .catch((err) => {
         if (!active) return
-        setState({ status: 'error', message: extractApiErrorMessage(err, 'Erro ao carregar o painel.') })
-      }
-    }
-    load()
+        setState({
+          status: 'error',
+          message: extractApiErrorMessage(err, 'Erro ao carregar o painel.'),
+        })
+      })
+
     return () => {
       active = false
     }
   }, [])
 
-  if (state.status === 'loading') return <p className="page-status">Carregando…</p>
+  if (state.status === 'loading') {
+    return <p className="page-status">Carregando…</p>
+  }
+
   if (state.status === 'error') {
     return (
       <p className="page-status" role="alert">
@@ -67,18 +75,13 @@ function AdminPanel() {
   }
 
   return (
-    <>
-      {state.freeCanteens > 0 && (
-        <div className="info-alert" role="status">
-          Há {state.freeCanteens === 1 ? '1 Cantina' : `${state.freeCanteens} Cantinas`} sem escola
-          vinculada. <Link to="/escolas">Criar uma escola</Link>
-        </div>
-      )}
-      <div className="summary-grid">
-        <SummaryCard to="/escolas" value={state.schools} label="Escolas cadastradas" />
-        <SummaryCard to="/escolas" value={state.freeCanteens} label="Cantinas sem escola" />
-      </div>
-    </>
+    <div className="summary-grid">
+      <SummaryCard
+        to="/escolas"
+        value={state.schools}
+        label="Escolas cadastradas"
+      />
+    </div>
   )
 }
 

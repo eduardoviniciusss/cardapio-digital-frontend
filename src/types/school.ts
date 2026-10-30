@@ -1,21 +1,18 @@
 // Tipos do módulo de escolas
 
-// Escola completa (retornada pelo endpoint do administrador)
+// Escola completa (retornada pela API)
 export interface School {
   id: number;
   name: string;
   address: string;
   phone: string;
   shifts: string[];
+
+  code?: string;
+
   canteenUserId?: number;
   canteenName?: string;
-}
-
-// Cantina disponível (sem escola vinculada)
-export interface AvailableCanteen {
-  id: number;
-  name: string;
-  email: string;
+  canteenEmail?: string;
 }
 
 // Dados enviados para criar uma escola
@@ -24,7 +21,10 @@ export interface CreateSchoolRequest {
   address: string;
   phone: string;
   shifts: string[];
-  canteenUserId: number;
+
+  canteenName: string;
+  canteenEmail: string;
+  canteenPassword: string;
 }
 
 // Dados enviados para atualizar uma escola
@@ -33,11 +33,4 @@ export interface UpdateSchoolRequest {
   address: string;
   phone: string;
   shifts: string[];
-}
-
-// Opção de escola para o select do responsável
-export interface SchoolOption {
-  id: number;
-  name: string;
-  address: string;
 }

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { extractApiErrorMessage } from '@/services/authService'
+import PasswordInput from '@/components/PasswordInput'
 import '../auth-layout.css'
 
 interface FormErrors {
@@ -94,41 +95,40 @@ export function Login() {
             </div>
           )}
 
-          <div className="field">
-            <label htmlFor="email">E-mail</label>
-            <input
-              id="email"
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              aria-invalid={Boolean(errors.email)}
-              aria-describedby={errors.email ? 'email-error' : undefined}
-            />
-            {errors.email && (
-              <p className="field__error" id="email-error">
-                {errors.email}
-              </p>
-            )}
-          </div>
+        <div className="field">
+          <label htmlFor="email">E-mail</label>
+        <input
+          id="email"
+          type="email"
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          aria-invalid={Boolean(errors.email)}
+          aria-describedby={errors.email ? 'email-error' : undefined}
+         />
+           {errors.email && (
+            <p className="field__error" id="email-error">
+              {errors.email}
+            </p>
+         )}
+        </div>
 
-          <div className="field">
-            <label htmlFor="password">Senha</label>
-            <input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              aria-invalid={Boolean(errors.password)}
-              aria-describedby={errors.password ? 'password-error' : undefined}
-            />
-            {errors.password && (
-              <p className="field__error" id="password-error">
-                {errors.password}
-              </p>
-            )}
-          </div>
+      <div className="field">
+        <label htmlFor="password">Senha</label>
+      <PasswordInput
+        id="password"
+        autoComplete="current-password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        aria-invalid={Boolean(errors.password)}
+        aria-describedby={errors.password ? 'password-error' : undefined}
+      />
+      {errors.password && (
+       <p className="field__error" id="password-error">
+      {errors.password}
+    </p>
+  )}
+</div>
 
           <button type="submit" className="btn-primary" disabled={isSubmitting}>
             {isSubmitting ? 'Entrando…' : 'Entrar'}
